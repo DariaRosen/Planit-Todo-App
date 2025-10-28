@@ -21,8 +21,8 @@ export function WeekPlanner() {
             .catch(console.error)
     }, [])
 
-    const handleAddTask = (taskTitle) => {
-        const newTask = { title: taskTitle }
+    const handleAddTask = (taskTitle, frequency) => {
+        const newTask = { title: taskTitle, frequency }
         fetch(`${API}/addTask.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -31,10 +31,11 @@ export function WeekPlanner() {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    setTasks([{ id: data.id, title: taskTitle, completed: 0 }, ...tasks])
+                    setTasks([{ id: data.id, title: taskTitle, frequency, completed: 0 }, ...tasks])
                 }
             })
     }
+
 
     return (
         <div className="grid grid-cols-8 gap-4">
