@@ -1,0 +1,17 @@
+@import "../base/reset";
+@import "../base/typography";
+@import "../components/task";
+@import "../components/weekGrid";
+
+// Global variables and colors
+$font-family: "Inter", sans-serif;
+$bg: #f5f7fb;
+$border-radius: 10px;
+
+body {
+  background-color: $bg;
+  font-family: $font-family;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
