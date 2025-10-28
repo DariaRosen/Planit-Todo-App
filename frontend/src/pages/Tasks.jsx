@@ -93,7 +93,7 @@ export function Tasks() {
                 <input
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
-                    placeholder="Task title..."
+                    placeholder="Add new task..."
                 />
                 <select
                     value={frequency}
