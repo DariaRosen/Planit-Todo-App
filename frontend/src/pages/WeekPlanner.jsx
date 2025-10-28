@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react"
+import { Check, X, RotateCcw } from "lucide-react" // ✅ nice icons
 import { TaskPanel } from "../components/TaskPanel"
 
 export function WeekPlanner() {
     const [tasks, setTasks] = useState([])
     const [currentOffset, setCurrentOffset] = useState(0)
+    const [taskState, setTaskState] = useState({}) // { [day.fullDate]: { [task.id]: "approved"/"removed"/"pending" } }
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
 
-    // 🧠 Load all tasks once
     useEffect(() => {
         fetch(`${API}/getTasks.php`)
             .then((res) => res.json())
@@ -15,43 +16,32 @@ export function WeekPlanner() {
             .catch(console.error)
     }, [])
 
-    // 🧩 Generate visible days dynamically with tasks
     const generateDays = () => {
         const today = new Date()
-        const generatedDays = Array.from({ length: 14 }, (_, i) => {
+        return Array.from({ length: 14 }, (_, i) => {
             const date = new Date(today)
             date.setDate(today.getDate() + currentOffset + i)
+
             const name = date.toLocaleDateString("en-US", { weekday: "long" })
             const shortDate = date.toLocaleDateString("en-US", {
                 day: "numeric",
                 month: "numeric",
             })
+            const fullDate = date.toISOString().split("T")[0]
 
-            // Automatically include daily / weekly tasks
             const dayTasks = tasks.filter((t) => {
                 if (t.frequency === "daily") return true
                 if (t.frequency === "weekly" && name === "Monday") return true
                 return false
             })
 
-            return {
-                name,
-                date: shortDate,
-                fullDate: date.toISOString().split("T")[0],
-                tasks: dayTasks,
-            }
+            return { name, date: shortDate, fullDate, tasks: dayTasks }
         })
-        return generatedDays
     }
 
     const [days, setDays] = useState(generateDays)
+    useEffect(() => setDays(generateDays()), [tasks, currentOffset])
 
-    // Recreate days whenever tasks or offset changes
-    useEffect(() => {
-        setDays(generateDays())
-    }, [tasks, currentOffset])
-
-    // ➕ Add new task
     const handleAddTask = (title, frequency) => {
         const newTask = { title, frequency }
         fetch(`${API}/addTask.php`, {
@@ -70,11 +60,27 @@ export function WeekPlanner() {
             })
     }
 
-    // ◀▶ Navigation (4 days visible)
+    // ⬅️ Task actions: approve / remove / revert
+    const handleApprove = (day, taskId) => {
+        setTaskState((prev) => ({
+            ...prev,
+            [day.fullDate]: {
+                ...prev[day.fullDate],
+                [taskId]:
+                    prev[day.fullDate]?.[taskId] === "approved" ? "pending" : "approved",
+            },
+        }))
+    }
+
+    const handleRemove = (day, taskId) => {
+        setTaskState((prev) => ({
+            ...prev,
+            [day.fullDate]: { ...prev[day.fullDate], [taskId]: "removed" },
+        }))
+    }
+
     const showNext = () => setCurrentOffset((prev) => prev + 1)
     const showPrev = () => setCurrentOffset((prev) => prev - 1)
-
-    // Slice 4-day window
     const visibleDays = days.slice(0, 4)
 
     return (
@@ -97,15 +103,55 @@ export function WeekPlanner() {
                             <span className="day-date">{day.date}</span>
                         </h3>
 
-                        {day.tasks.length > 0 ? (
-                            <ul className="task-list">
-                                {day.tasks.map((t) => (
-                                    <li key={t.id} className="task-item">
-                                        {t.title}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
+                        <ul className="task-list">
+                            {day.tasks
+                                .filter((t) => taskState[day.fullDate]?.[t.id] !== "removed")
+                                .sort((a, b) => {
+                                    const aState = taskState[day.fullDate]?.[a.id]
+                                    const bState = taskState[day.fullDate]?.[b.id]
+                                    if (aState === "approved" && bState !== "approved") return 1
+                                    if (aState !== "approved" && bState === "approved") return -1
+                                    return 0
+                                })
+                                .map((t) => {
+                                    const state = taskState[day.fullDate]?.[t.id] || "pending"
+                                    return (
+                                        <li
+                                            key={t.id}
+                                            className={`task-item ${state === "approved" ? "approved" : ""}`}
+                                        >
+                                            <span className="task-text">{t.title}</span>
+                                            <div className="task-actions">
+                                                {state === "approved" ? (
+                                                    <button
+                                                        className="revert-btn"
+                                                        onClick={() => handleApprove(day, t.id)}
+                                                    >
+                                                        <RotateCcw size={18} />
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            className="approve-btn"
+                                                            onClick={() => handleApprove(day, t.id)}
+                                                        >
+                                                            <Check size={18} />
+                                                        </button>
+                                                        <button
+                                                            className="remove-btn"
+                                                            onClick={() => handleRemove(day, t.id)}
+                                                        >
+                                                            <X size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </li>
+                                    )
+                                })}
+                        </ul>
+
+                        {day.tasks.length === 0 && (
                             <p className="no-tasks">No tasks assigned</p>
                         )}
                     </div>
