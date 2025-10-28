@@ -1,5 +1,5 @@
 .app-header {
-  background: #94d3af;
+  background: $color-header;
   color: #fff;
   padding: 0.8rem 1.5rem;
   position: sticky;
@@ -59,7 +59,7 @@
       position: absolute;
       top: 60px;
       right: 0;
-      background: #3b82f6;
+      background: $color-header;
       flex-direction: column;
       width: 100%;
       padding: 1rem;
