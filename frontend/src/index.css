@@ -24,9 +24,11 @@ a:hover {
 
 body {
   margin: 0;
-  place-items: center;
-  min-width: 320px;
+  width: 100%;
   min-height: 100vh;
+  display: block;
+  background-color: #f5f7fb;
+  color: #213547;
 }
 
 h1 {

@@ -38,18 +38,18 @@ export function WeekPlanner() {
 
 
     return (
-        <div className="grid grid-cols-8 gap-4">
-            <div className="col-span-2">
+        <div className="">
+            <div className="">
                 <TaskPanel tasks={tasks} onAddTask={handleAddTask} />
             </div>
 
-            <div className="col-span-6 grid grid-cols-7 gap-2">
+            <div className="">
                 {days.map((day, idx) => (
                     <div
                         key={idx}
-                        className="border rounded-md p-2 min-h-[200px] bg-white shadow-sm"
+                        className=""
                     >
-                        <h3 className="font-semibold text-center border-b pb-1 mb-2">
+                        <h3 className="">
                             {day.name}
                         </h3>
                         {day.tasks.length > 0 ? (
@@ -59,7 +59,7 @@ export function WeekPlanner() {
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-gray-400 text-center text-sm">
+                            <p className="">
                                 No tasks assigned
                             </p>
                         )}
