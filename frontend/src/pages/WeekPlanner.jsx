@@ -4,12 +4,17 @@ import { TaskPanel } from "../components/TaskPanel"
 export function WeekPlanner() {
     const [tasks, setTasks] = useState([])
     const [days, setDays] = useState(() =>
-        Array.from({ length: 7 }, (_, i) => ({
-            name: new Date(Date.now() + i * 86400000).toLocaleDateString("en-US", {
-                weekday: "long",
-            }),
-            tasks: [],
-        }))
+        Array.from({ length: 7 }, (_, i) => {
+            const currentDate = new Date(Date.now() + i * 86400000)
+            return {
+                name: currentDate.toLocaleDateString("en-US", { weekday: "long" }),
+                date: currentDate.toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "numeric",
+                }),
+                tasks: [],
+            }
+        })
     )
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
@@ -47,7 +52,10 @@ export function WeekPlanner() {
             <div className="week-planner">
                 {days.map((day, idx) => (
                     <div key={idx} className="day-column">
-                        <h3 className="day-title">{day.name}</h3>
+                        <h3 className="day-title">
+                            <span className="day-name">{day.name}</span>
+                            <span className="day-date">{day.date}</span>
+                        </h3>
 
                         {day.tasks.length > 0 ? (
                             <ul className="task-list">
