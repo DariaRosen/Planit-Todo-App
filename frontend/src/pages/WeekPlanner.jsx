@@ -3,23 +3,11 @@ import { TaskPanel } from "../components/TaskPanel"
 
 export function WeekPlanner() {
     const [tasks, setTasks] = useState([])
-    const [days, setDays] = useState(() =>
-        Array.from({ length: 7 }, (_, i) => {
-            const currentDate = new Date(Date.now() + i * 86400000)
-            return {
-                name: currentDate.toLocaleDateString("en-US", { weekday: "long" }),
-                date: currentDate.toLocaleDateString("en-US", {
-                    day: "numeric",
-                    month: "numeric",
-                }),
-                tasks: [],
-            }
-        })
-    )
+    const [currentOffset, setCurrentOffset] = useState(0)
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
 
-    // Load all tasks
+    // 🧠 Load all tasks once
     useEffect(() => {
         fetch(`${API}/getTasks.php`)
             .then((res) => res.json())
@@ -27,24 +15,45 @@ export function WeekPlanner() {
             .catch(console.error)
     }, [])
 
-    // 🧠 Distribute tasks into days automatically
-    useEffect(() => {
-        const updatedDays = days.map((day) => {
-            // For now, daily tasks go into every day.
+    // 🧩 Generate visible days dynamically with tasks
+    const generateDays = () => {
+        const today = new Date()
+        const generatedDays = Array.from({ length: 14 }, (_, i) => {
+            const date = new Date(today)
+            date.setDate(today.getDate() + currentOffset + i)
+            const name = date.toLocaleDateString("en-US", { weekday: "long" })
+            const shortDate = date.toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "numeric",
+            })
+
+            // Automatically include daily / weekly tasks
             const dayTasks = tasks.filter((t) => {
                 if (t.frequency === "daily") return true
-                if (t.frequency === "weekly") return false
-                if (t.frequency === "as_needed") return false
+                if (t.frequency === "weekly" && name === "Monday") return true
                 return false
             })
-            return { ...day, tasks: dayTasks }
-        })
-        setDays(updatedDays)
-    }, [tasks])
 
-    // Add new task
-    const handleAddTask = (taskTitle, frequency) => {
-        const newTask = { title: taskTitle, frequency }
+            return {
+                name,
+                date: shortDate,
+                fullDate: date.toISOString().split("T")[0],
+                tasks: dayTasks,
+            }
+        })
+        return generatedDays
+    }
+
+    const [days, setDays] = useState(generateDays)
+
+    // Recreate days whenever tasks or offset changes
+    useEffect(() => {
+        setDays(generateDays())
+    }, [tasks, currentOffset])
+
+    // ➕ Add new task
+    const handleAddTask = (title, frequency) => {
+        const newTask = { title, frequency }
         fetch(`${API}/addTask.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -54,24 +63,35 @@ export function WeekPlanner() {
             .then((data) => {
                 if (data.success) {
                     setTasks((prev) => [
-                        { id: data.id, title: taskTitle, frequency, completed: 0 },
+                        { id: data.id, title, frequency, completed: 0 },
                         ...prev,
                     ])
                 }
             })
     }
 
+    // ◀▶ Navigation (4 days visible)
+    const showNext = () => setCurrentOffset((prev) => prev + 1)
+    const showPrev = () => setCurrentOffset((prev) => prev - 1)
+
+    // Slice 4-day window
+    const visibleDays = days.slice(0, 4)
+
     return (
         <div className="week-planner-container">
-            {/* Add task section */}
             <div className="task-panel-wrapper">
                 <TaskPanel tasks={tasks} onAddTask={handleAddTask} />
             </div>
 
-            {/* Week view */}
+            <div className="week-planner-header">
+                <button onClick={showPrev} className="arrow-btn">◀</button>
+                <h2 className="week-title">Planit Timeline</h2>
+                <button onClick={showNext} className="arrow-btn">▶</button>
+            </div>
+
             <div className="week-planner">
-                {days.map((day, idx) => (
-                    <div key={idx} className="day-column">
+                {visibleDays.map((day) => (
+                    <div key={day.fullDate} className="day-column">
                         <h3 className="day-title">
                             <span className="day-name">{day.name}</span>
                             <span className="day-date">{day.date}</span>
