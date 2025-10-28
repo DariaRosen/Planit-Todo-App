@@ -6,7 +6,7 @@ export function WeekPlanner() {
     const [days, setDays] = useState(() =>
         Array.from({ length: 7 }, (_, i) => ({
             name: new Date(Date.now() + i * 86400000).toLocaleDateString("en-US", {
-                weekday: "short",
+                weekday: "long",
             }),
             tasks: [],
         }))
@@ -36,36 +36,35 @@ export function WeekPlanner() {
             })
     }
 
-
     return (
-        <div className="">
-            <div className="">
+        <div className="week-planner-container">
+            {/* Task panel section */}
+            <div className="task-panel-wrapper">
                 <TaskPanel tasks={tasks} onAddTask={handleAddTask} />
             </div>
 
-            <div className="">
+            {/* Week planner grid */}
+            <div className="week-planner">
                 {days.map((day, idx) => (
-                    <div
-                        key={idx}
-                        className=""
-                    >
-                        <h3 className="">
-                            {day.name}
-                        </h3>
+                    <div key={idx} className="day-column">
+                        <h3 className="day-title">{day.name}</h3>
+
                         {day.tasks.length > 0 ? (
-                            <ul>
+                            <ul className="task-list">
                                 {day.tasks.map((t) => (
-                                    <li key={t.id}>{t.title}</li>
+                                    <li key={t.id} className="task-item">
+                                        {t.title}
+                                    </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="">
-                                No tasks assigned
-                            </p>
+                            <p className="no-tasks">No tasks assigned</p>
                         )}
                     </div>
                 ))}
             </div>
         </div>
     )
+
+
 }
