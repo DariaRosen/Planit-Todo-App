@@ -19,6 +19,7 @@ export function WeekPlanner() {
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
 
+    // Load all tasks
     useEffect(() => {
         fetch(`${API}/getTasks.php`)
             .then((res) => res.json())
@@ -26,6 +27,22 @@ export function WeekPlanner() {
             .catch(console.error)
     }, [])
 
+    // 🧠 Distribute tasks into days automatically
+    useEffect(() => {
+        const updatedDays = days.map((day) => {
+            // For now, daily tasks go into every day.
+            const dayTasks = tasks.filter((t) => {
+                if (t.frequency === "daily") return true
+                if (t.frequency === "weekly") return false
+                if (t.frequency === "as_needed") return false
+                return false
+            })
+            return { ...day, tasks: dayTasks }
+        })
+        setDays(updatedDays)
+    }, [tasks])
+
+    // Add new task
     const handleAddTask = (taskTitle, frequency) => {
         const newTask = { title: taskTitle, frequency }
         fetch(`${API}/addTask.php`, {
@@ -36,19 +53,22 @@ export function WeekPlanner() {
             .then((res) => res.json())
             .then((data) => {
                 if (data.success) {
-                    setTasks([{ id: data.id, title: taskTitle, frequency, completed: 0 }, ...tasks])
+                    setTasks((prev) => [
+                        { id: data.id, title: taskTitle, frequency, completed: 0 },
+                        ...prev,
+                    ])
                 }
             })
     }
 
     return (
         <div className="week-planner-container">
-            {/* Task panel section */}
+            {/* Add task section */}
             <div className="task-panel-wrapper">
                 <TaskPanel tasks={tasks} onAddTask={handleAddTask} />
             </div>
 
-            {/* Week planner grid */}
+            {/* Week view */}
             <div className="week-planner">
                 {days.map((day, idx) => (
                     <div key={idx} className="day-column">
@@ -73,6 +93,4 @@ export function WeekPlanner() {
             </div>
         </div>
     )
-
-
 }
