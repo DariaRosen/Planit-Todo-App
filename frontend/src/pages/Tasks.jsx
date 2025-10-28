@@ -64,13 +64,30 @@ export function Tasks() {
         }
     }
 
-    const handleDelete = (id) => {
-        fetch(`${API}/deleteTask.php?id=${id}`, { method: "DELETE" })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success) setTasks((prev) => prev.filter((t) => t.id !== id))
-            })
+    async function handleDelete(taskId) {
+        try {
+            const res = await fetch(
+                "http://localhost/Planit-Todo-App/backend/api/deleteTask.php",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ id: taskId }),
+                }
+            )
+
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Failed to delete")
+
+            // Optional: update local state
+            setTasks((prev) => prev.filter((t) => t.id !== taskId))
+        } catch (err) {
+            console.error("Delete failed:", err)
+            alert("Could not delete task.")
+        }
     }
+
 
     const handleEdit = (task) => {
         setEditingTask(task)
