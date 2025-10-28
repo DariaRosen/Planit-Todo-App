@@ -68,6 +68,64 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
 
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      font-size: 0.9rem;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #e0f2fe;
+      }
+
+      &.approved {
+        background: #dcfce7; // light green
+        border-color: #86efac;
+        color: #166534;
+      }
+
+      .task-actions {
+        display: flex;
+        gap: 0.3rem;
+
+        button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0.2rem;
+          border-radius: 4px;
+          transition: background 0.2s ease;
+
+          svg {
+            color: #475569;
+          }
+
+          &:hover svg {
+            color: #0ea5e9;
+          }
+
+          &.approve-btn:hover svg {
+            color: #16a34a; // green
+          }
+
+          &.remove-btn:hover svg {
+            color: #dc2626; // red
+          }
+
+          &.revert-btn:hover svg {
+            color: #2563eb; // blue
+          }
+        }
+      }
+    }
+
     .day-title {
       display: flex;
       flex-direction: column;
