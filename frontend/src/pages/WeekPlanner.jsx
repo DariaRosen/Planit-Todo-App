@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Check, X, RotateCcw } from "lucide-react" // ✅ nice icons
 import { TaskPanel } from "../components/TaskPanel"
+import { TaskIcon } from "../components/TaskIcon"
 
 export function WeekPlanner() {
     const [tasks, setTasks] = useState([])
@@ -120,7 +121,11 @@ export function WeekPlanner() {
                                             key={t.id}
                                             className={`task-item ${state === "approved" ? "approved" : ""}`}
                                         >
-                                            <span className="task-text">{t.title}</span>
+                                            <div className="task-left">
+                                                <TaskIcon title={t.title} />
+                                                <span className="task-text">{t.title}</span>
+                                            </div>
+
                                             <div className="task-actions">
                                                 {state === "approved" ? (
                                                     <button
