@@ -206,3 +206,33 @@
     }
   }
 }
+
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  .task-icon {
+    color: #64748b;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+}
+
+.task-item.approved .task-icon {
+  color: #16a34a; // green when approved
+}
+
+.task-icon {
+  transition: transform 0.2s ease, filter 0.2s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    filter: brightness(1.2);
+  }
+}
