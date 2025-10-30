@@ -84,6 +84,9 @@ export function WeekPlanner() {
         const { active, over } = event
         if (!over) return
 
+        const taskData = active.data?.current
+        if (!taskData) return // no data — stop here
+
         const taskId = parseInt(active.id.replace("task-", ""), 10)
         const targetDay = over.id.replace("day-", "")
 
@@ -94,7 +97,7 @@ export function WeekPlanner() {
                         ...day,
                         tasks: day.tasks.some((t) => t.id === taskId)
                             ? day.tasks
-                            : [...day.tasks, tasks.find((t) => t.id === taskId)],
+                            : [...day.tasks, taskData], // ✅ use actual dragged task
                     }
                     : day
             )
