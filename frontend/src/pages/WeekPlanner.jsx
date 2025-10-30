@@ -45,7 +45,14 @@ export function WeekPlanner() {
                     status: dt.status,
                 }))
 
-            return { name, date: shortDate, fullDate, tasks: [...autoTasks, ...savedTasks] }
+            // Merge auto + saved tasks, but remove duplicates
+            const combined = [...autoTasks, ...savedTasks]
+                .filter(
+                    (task, index, self) =>
+                        index === self.findIndex((t) => t.id === task.id || t.title === task.title)
+                )
+
+            return { name, date: shortDate, fullDate, tasks: combined }
         })
     }
 
