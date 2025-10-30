@@ -6,28 +6,17 @@ import { TaskIcon } from "../components/TaskIcon"
 import { DroppableDay } from "../components/DroppableDay"
 
 export function WeekPlanner() {
-    // --- State ---
     const [tasks, setTasks] = useState([])
     const [days, setDays] = useState([])
     const [currentOffset, setCurrentOffset] = useState(0)
-    const [taskState, setTaskState] = useState({}) // { [day.fullDate]: { [task.id]: "approved"/"removed"/"pending" } }
+    const [taskState, setTaskState] = useState({})
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
 
-    // --- Fetch tasks + initialize days ---
-    useEffect(() => {
-        fetch(`${API}/getTasks.php`)
-            .then((res) => res.json())
-            .then((data) => {
-                setTasks(data)
-                setDays(generateDays(data))
-            })
-            .catch(console.error)
-    }, [])
-
-    // --- Generate 14 days (starting today + offset) ---
-    const generateDays = (taskList = tasks) => {
+    // 🧩 Generate days with optional data merge
+    const generateDays = (taskList = [], dayTasks = []) => {
         const today = new Date()
+
         return Array.from({ length: 14 }, (_, i) => {
             const date = new Date(today)
             date.setDate(today.getDate() + currentOffset + i)
@@ -39,23 +28,42 @@ export function WeekPlanner() {
             })
             const fullDate = date.toISOString().split("T")[0]
 
-            // Automatically assign daily/weekly tasks
-            const dayTasks = taskList.filter((t) => {
+            // 🧠 Base tasks (daily/weekly auto-assign)
+            const autoTasks = taskList.filter((t) => {
                 if (t.frequency === "daily") return true
                 if (t.frequency === "weekly" && name === "Monday") return true
                 return false
             })
 
-            return { name, date: shortDate, fullDate, tasks: dayTasks }
+            // 🧠 Merge persisted tasks from DB
+            const savedTasks = dayTasks
+                .filter((dt) => dt.day_date === fullDate)
+                .map((dt) => ({
+                    id: dt.task_id,
+                    title: dt.title,
+                    frequency: dt.frequency,
+                    status: dt.status,
+                }))
+
+            return { name, date: shortDate, fullDate, tasks: [...autoTasks, ...savedTasks] }
         })
     }
 
-    // --- Update days when tasks or offset change ---
+    // 🔄 Load both tasks and day-tasks once
     useEffect(() => {
-        setDays(generateDays())
-    }, [tasks, currentOffset])
+        Promise.all([
+            fetch(`${API}/getTasks.php`).then((res) => res.json()),
+            fetch(`${API}/getDayTasks.php`).then((res) => res.json())
+        ])
+            .then(([allTasks, dayTasks]) => {
+                setTasks(allTasks)
+                setDays(generateDays(allTasks, dayTasks))
+            })
+            .catch(console.error)
+    }, [currentOffset])
 
-    // --- Approve / Remove / Revert task handlers ---
+
+    // ✅ Task actions
     const handleApprove = (day, taskId) => {
         setTaskState((prev) => ({
             ...prev,
@@ -74,12 +82,7 @@ export function WeekPlanner() {
         }))
     }
 
-    // --- Pagination controls ---
-    const showNext = () => setCurrentOffset((prev) => prev + 1)
-    const showPrev = () => setCurrentOffset((prev) => prev - 1)
-    const visibleDays = days.slice(0, 4)
-
-    // --- Handle drag end (drop task into day) ---
+    // 🧲 Drag handling
     const handleDragEnd = (event) => {
         const { active, over } = event
         if (!over) return
@@ -100,40 +103,51 @@ export function WeekPlanner() {
                         t.title.toLowerCase() === taskData.title.toLowerCase()
                 )
 
+                // 🟢 Ask before inserting duplicate
                 if (alreadyExists) {
                     const confirmDuplicate = window.confirm(
                         `The task "${taskData.title}" already exists in ${day.name}. Add again anyway?`
                     )
-                    if (!confirmDuplicate) return day // user said no
+                    if (!confirmDuplicate) return day
                 }
+
+                // 🧠 Save to DB only after confirmation
+                fetch(`${API}/addDayTask.php`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ task_id: taskData.id, day_date: targetDay }),
+                }).catch(console.error)
 
                 return {
                     ...day,
                     tasks: alreadyExists
-                        ? [...day.tasks, { ...taskData, id: `${taskId}-dup-${Date.now()}` }] // optional unique ID if they confirm
+                        ? [...day.tasks, { ...taskData, id: `${taskId}-dup-${Date.now()}` }]
                         : [...day.tasks, taskData],
                 }
             })
         )
     }
 
+    const showNext = () => setCurrentOffset((prev) => prev + 1)
+    const showPrev = () => setCurrentOffset((prev) => prev - 1)
+    const visibleDays = days.slice(0, 4)
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="week-planner-container">
-                {/* --- Task Panel (left side) --- */}
+                {/* 🧩 Task Panel */}
                 <div className="task-panel-wrapper">
                     <TaskPanel tasks={tasks} />
                 </div>
 
-                {/* --- Header with arrows --- */}
+                {/* 🧭 Header with arrows */}
                 <div className="week-planner-header">
                     <button onClick={showPrev} className="arrow-btn">◀</button>
                     <h2 className="week-title">Planit Timeline</h2>
                     <button onClick={showNext} className="arrow-btn">▶</button>
                 </div>
 
-                {/* --- Main planner area --- */}
+                {/* 📅 Days */}
                 <div className="week-planner">
                     {visibleDays.map((day) => (
                         <DroppableDay key={day.fullDate} day={day}>
@@ -144,6 +158,7 @@ export function WeekPlanner() {
 
                             <ul className="task-list">
                                 {day.tasks
+                                    .filter(Boolean)
                                     .filter((t) => taskState[day.fullDate]?.[t.id] !== "removed")
                                     .sort((a, b) => {
                                         const aState = taskState[day.fullDate]?.[a.id]
@@ -164,7 +179,6 @@ export function WeekPlanner() {
                                                     <TaskIcon title={t.title} />
                                                     <span className="task-text">{t.title}</span>
                                                 </div>
-
                                                 <div className="task-actions">
                                                     {state === "approved" ? (
                                                         <button
