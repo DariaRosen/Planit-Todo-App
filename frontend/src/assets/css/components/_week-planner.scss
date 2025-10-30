@@ -238,3 +238,19 @@
     filter: brightness(1.2);
   }
 }
+
+.draggable {
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.day-over {
+  background: #dbeafe !important;
+  transition: background 0.2s ease;
+}
