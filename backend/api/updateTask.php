@@ -1,4 +1,8 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
 include_once "../db_connect.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -23,4 +27,3 @@ $stmt->execute();
 echo json_encode(["success" => true]);
 $stmt->close();
 $conn->close();
-?>
