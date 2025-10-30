@@ -254,3 +254,8 @@
   background: #dbeafe !important;
   transition: background 0.2s ease;
 }
+
+.draggable[data-dragging="true"] {
+  z-index: 9999 !important;
+  position: relative;
+}
