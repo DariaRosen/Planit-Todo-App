@@ -85,24 +85,38 @@ export function WeekPlanner() {
         if (!over) return
 
         const taskData = active.data?.current
-        if (!taskData) return // no data — stop here
+        if (!taskData) return
 
         const taskId = parseInt(active.id.replace("task-", ""), 10)
         const targetDay = over.id.replace("day-", "")
 
         setDays((prev) =>
-            prev.map((day) =>
-                day.fullDate === targetDay
-                    ? {
-                        ...day,
-                        tasks: day.tasks.some((t) => t.id === taskId)
-                            ? day.tasks
-                            : [...day.tasks, taskData], // ✅ use actual dragged task
-                    }
-                    : day
-            )
+            prev.map((day) => {
+                if (day.fullDate !== targetDay) return day
+
+                const alreadyExists = day.tasks.some(
+                    (t) =>
+                        t.id === taskId ||
+                        t.title.toLowerCase() === taskData.title.toLowerCase()
+                )
+
+                if (alreadyExists) {
+                    const confirmDuplicate = window.confirm(
+                        `The task "${taskData.title}" already exists in ${day.name}. Add again anyway?`
+                    )
+                    if (!confirmDuplicate) return day // user said no
+                }
+
+                return {
+                    ...day,
+                    tasks: alreadyExists
+                        ? [...day.tasks, { ...taskData, id: `${taskId}-dup-${Date.now()}` }] // optional unique ID if they confirm
+                        : [...day.tasks, taskData],
+                }
+            })
         )
     }
+
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
