@@ -18,7 +18,7 @@ export function TaskIcon({ title, size = 22, className = "" }) {
     if (!title) return null
 
     const icons = [
-        { key: "dishes", icon: <FaUtensils color="#f5e50bff" size={size} /> },
+        { key: "dishes", icon: <FaUtensils color="#2d7c40ff" size={size} /> },
         { key: "cook", icon: <IoRestaurantSharp color="#f97316" size={size} /> },
         { key: "laundry", icon: <MdOutlineLocalLaundryService color="#3b82f6" size={size} /> },
         { key: "washing machine", icon: <MdOutlineCleanHands color="#60a5fa" size={size} /> },
