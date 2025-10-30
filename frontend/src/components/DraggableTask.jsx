@@ -2,7 +2,7 @@ import { useDraggable } from "@dnd-kit/core"
 import { TaskIcon } from "./TaskIcon"
 
 export function DraggableTask({ task }) {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: `task-${task.id}`,
         data: task,
     })
@@ -11,6 +11,8 @@ export function DraggableTask({ task }) {
         transform: transform
             ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
             : undefined,
+        zIndex: isDragging ? 9999 : "auto",
+        position: isDragging ? "relative" : "static",
     }
 
     return (
@@ -20,6 +22,7 @@ export function DraggableTask({ task }) {
             {...listeners}
             {...attributes}
             className="task-block draggable"
+            data-dragging={isDragging}
         >
             <TaskIcon title={task.title} size={20} />
             <span className="task-title">{task.title}</span>
