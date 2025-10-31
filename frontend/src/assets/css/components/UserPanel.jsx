@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { UserPlus, LogIn, LogOut } from "lucide-react"
+import "./UserPanel.scss"
 
 const API = "http://localhost/Planit-Todo-App/backend/api"
 
@@ -8,11 +9,11 @@ export function UserPanel() {
     const [newUser, setNewUser] = useState({
         name: "",
         email: "",
-        is_main_user: 0,
+        is_main_user: false,
         avatar_url: "",
     })
 
-    // 🟢 Load users on mount
+    // Load users
     useEffect(() => {
         fetch(`${API}/getUsers.php`)
             .then((res) => res.json())
@@ -20,10 +21,13 @@ export function UserPanel() {
             .catch(console.error)
     }, [])
 
-    // 🧩 Add new user
+    // Add new user
     const handleAddUser = (e) => {
         e.preventDefault()
-        if (!newUser.name.trim()) return alert("Please enter a name")
+        if (!newUser.name.trim()) {
+            alert("Please enter a name.")
+            return
+        }
 
         fetch(`${API}/addUser.php`, {
             method: "POST",
@@ -37,16 +41,21 @@ export function UserPanel() {
             .then((data) => {
                 if (data.success) {
                     setUsers((prev) => [
-                        { id: data.user_id, ...newUser, created_at: new Date().toISOString(), is_logged_in: 0 },
+                        {
+                            id: data.user_id,
+                            ...newUser,
+                            created_at: new Date().toISOString(),
+                            is_logged_in: 0,
+                        },
                         ...prev,
                     ])
-                    setNewUser({ name: "", email: "", avatar_url: "", is_main_user: 0 })
+                    setNewUser({ name: "", email: "", avatar_url: "", is_main_user: false })
                 }
             })
             .catch(console.error)
     }
 
-    // 🔁 Toggle login status
+    // Toggle login/logout
     const toggleLogin = (userId, currentState) => {
         const newState = currentState ? 0 : 1
 
@@ -69,110 +78,88 @@ export function UserPanel() {
     }
 
     return (
-        <aside className="user-panel bg-white shadow rounded-2xl p-6 w-full max-w-md mx-auto">
-            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                👤 Users
-            </h2>
+        <aside className="user-panel">
+            <h2 className="panel-title">👤 Users</h2>
 
-            {/* ➕ Add new user form */}
-            <form onSubmit={handleAddUser} className="space-y-3 mb-6">
+            <form className="add-user-form" onSubmit={handleAddUser}>
                 <input
                     type="text"
                     placeholder="Full name"
                     value={newUser.name}
-                    onChange={(e) =>
-                        setNewUser((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                 />
                 <input
                     type="email"
                     placeholder="Email (optional)"
                     value={newUser.email}
-                    onChange={(e) =>
-                        setNewUser((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                 />
                 <input
                     type="url"
                     placeholder="Avatar URL (optional)"
                     value={newUser.avatar_url}
-                    onChange={(e) =>
-                        setNewUser((prev) => ({ ...prev, avatar_url: e.target.value }))
-                    }
-                    className="w-full border rounded-lg px-3 py-2"
+                    onChange={(e) => setNewUser({ ...newUser, avatar_url: e.target.value })}
                 />
-                <label className="flex items-center gap-2 text-sm">
+
+                <label className="checkbox">
                     <input
                         type="checkbox"
                         checked={newUser.is_main_user}
                         onChange={(e) =>
-                            setNewUser((prev) => ({
-                                ...prev,
-                                is_main_user: e.target.checked,
-                            }))
+                            setNewUser({ ...newUser, is_main_user: e.target.checked })
                         }
                     />
                     Main user
                 </label>
-                <button
-                    type="submit"
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg flex items-center justify-center gap-2"
-                >
-                    <UserPlus size={18} /> Add User
+
+                <button type="submit" className="add-btn">
+                    <UserPlus size={18} />
+                    <span>Add User</span>
                 </button>
             </form>
 
-            {/* 👥 User list */}
-            <div className="user-list space-y-3">
+            <div className="user-list">
                 {users.length === 0 && (
-                    <p className="text-gray-500 text-sm">No users yet</p>
+                    <p className="no-users">No users yet</p>
                 )}
 
                 {users.map((user) => (
-                    <div
-                        key={user.id}
-                        className="flex items-center justify-between border rounded-lg px-3 py-2 shadow-sm hover:shadow-md transition-all"
-                    >
-                        <div className="flex items-center gap-3">
+                    <div key={user.id} className="user-card">
+                        <div className="user-info">
                             <img
                                 src={
                                     user.avatar_url ||
                                     "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                                 }
                                 alt={user.name}
-                                className="w-10 h-10 rounded-full object-cover"
+                                className="avatar"
                             />
-                            <div>
-                                <p className="font-medium">{user.name}</p>
-                                <p className="text-xs text-gray-500">
+                            <div className="details">
+                                <p className="name">{user.name}</p>
+                                <p className="meta">
                                     {user.is_main_user ? "Main User" : "Sub User"} ·{" "}
                                     {user.is_logged_in ? (
-                                        <span className="text-green-600 font-semibold">
-                                            Logged in
-                                        </span>
+                                        <span className="status logged-in">Logged in</span>
                                     ) : (
-                                        <span className="text-gray-400">Logged out</span>
+                                        <span className="status logged-out">Logged out</span>
                                     )}
                                 </p>
                             </div>
                         </div>
 
                         <button
+                            className={`login-btn ${user.is_logged_in ? "logout" : "login"}`}
                             onClick={() => toggleLogin(user.id, user.is_logged_in)}
-                            className={`px-3 py-1 rounded-md text-white flex items-center gap-1 transition ${user.is_logged_in
-                                    ? "bg-red-500 hover:bg-red-600"
-                                    : "bg-blue-500 hover:bg-blue-600"
-                                }`}
                         >
                             {user.is_logged_in ? (
                                 <>
-                                    <LogOut size={16} /> Logout
+                                    <LogOut size={16} />
+                                    Logout
                                 </>
                             ) : (
                                 <>
-                                    <LogIn size={16} /> Login
+                                    <LogIn size={16} />
+                                    Login
                                 </>
                             )}
                         </button>

@@ -1,0 +1,159 @@
+.user-panel {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: system-ui, sans-serif;
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  input[type="text"],
+  input[type="email"],
+  input[type="url"] {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: #4e89f3;
+    }
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      background-color: #43a047;
+    }
+
+    svg {
+      stroke-width: 2px;
+    }
+  }
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .no-users {
+    font-size: 0.9rem;
+    color: #777;
+    text-align: center;
+  }
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f3f3f3;
+    }
+
+    .details {
+      .name {
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .meta {
+        font-size: 0.8rem;
+        color: #888;
+
+        .status {
+          &.logged-in {
+            color: #4caf50;
+            font-weight: 500;
+          }
+          &.logged-out {
+            color: #999;
+          }
+        }
+      }
+    }
+  }
+
+  .login-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &.login {
+      background-color: #2196f3;
+
+      &:hover {
+        background-color: #1976d2;
+      }
+    }
+
+    &.logout {
+      background-color: #f44336;
+
+      &:hover {
+        background-color: #d32f2f;
+      }
+    }
+  }
+}
