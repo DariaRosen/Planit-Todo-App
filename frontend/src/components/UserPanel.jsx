@@ -26,14 +26,14 @@ export function UserPanel() {
         e.preventDefault();
 
         const payload = {
-            name: newUser.name,
-            email: newUser.email,
+            name: newUser.name.trim(),
+            email: newUser.email.trim(),
             is_main_user: newUser.is_main_user ? 1 : 0,
-            avatar_url: newUser.avatar_url,
-        }
+            avatar_url: newUser.avatar_url.trim(),
+        };
 
-        console.log("📦 Sending user JSON:", payload); // ✅ check payload
-        console.log("📤 JSON stringified:", JSON.stringify(payload)); // ✅ check exact body
+        console.log("📦 Sending user JSON:", payload);
+        console.log("📤 JSON stringified:", JSON.stringify(payload));
 
         try {
             const res = await fetch(`${API}/addUser.php`, {
@@ -42,21 +42,40 @@ export function UserPanel() {
                 body: JSON.stringify(payload),
             });
 
-            console.log("📥 Raw response:", res);
-
-            const text = await res.text(); // read raw body for debugging
+            const text = await res.text();
             console.log("📄 Raw response text:", text);
 
             const data = JSON.parse(text);
             console.log("✅ Parsed JSON:", data);
 
-            if (data.success) alert("✅ User added!");
-            else alert("❌ " + data.error);
+            if (data.success) {
+                // ✅ Create user object for frontend storage
+                const loggedUser = {
+                    id: data.user_id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    is_main_user: newUser.is_main_user,
+                    avatar_url:
+                        newUser.avatar_url ||
+                        `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(
+                            newUser.name || "Guest"
+                        )}`,
+                    is_logged_in: 1,
+                };
+
+                // Save to localStorage for persistent login
+                localStorage.setItem("loggedinUser", JSON.stringify(loggedUser));
+
+                alert(`✅ Welcome, ${loggedUser.name}! You are now logged in.`);
+                setNewUser({ name: "", email: "", is_main_user: false, avatar_url: "" });
+            } else {
+                alert("❌ " + (data.error || "Failed to add user"));
+            }
         } catch (err) {
             console.error("Add user failed:", err);
+            alert("❌ Failed to add user. Check console for details.");
         }
     };
-
 
 
     // Toggle login/logout

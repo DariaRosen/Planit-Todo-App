@@ -1,8 +1,31 @@
-import { NavLink } from "react-router-dom"
-import { useState } from "react"
+import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export function Header() {
-    const [menuOpen, setMenuOpen] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [user, setUser] = useState(null);
+
+    // ✅ Load the logged-in user from localStorage
+    useEffect(() => {
+        const stored = localStorage.getItem("loggedinUser");
+        if (stored) setUser(JSON.parse(stored));
+    }, []);
+
+    // ✅ Generate a fallback avatar if none exists
+    const getAvatar = (name, avatar_url) => {
+        return (
+            avatar_url ||
+            `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(
+                name || "Guest"
+            )}`
+        );
+    };
+
+    // ✅ Handle logout
+    const handleLogout = () => {
+        localStorage.removeItem("loggedinUser");
+        setUser(null);
+    };
 
     return (
         <header className="app-header">
@@ -21,6 +44,26 @@ export function Header() {
                     </NavLink>
                 </nav>
 
+                <div className="user-section">
+                    {user ? (
+                        <div className="user-info">
+                            <img
+                                src={getAvatar(user.name, user.avatar_url)}
+                                alt={user.name}
+                                className="avatar"
+                            />
+                            <span className="greeting">Hello, {user.name} 👋</span>
+                            <button className="logout-btn" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <NavLink to="/user" className="login-btn">
+                            Login / Sign Up
+                        </NavLink>
+                    )}
+                </div>
+
                 <button
                     className="menu-toggle"
                     onClick={() => setMenuOpen((prev) => !prev)}
@@ -29,5 +72,5 @@ export function Header() {
                 </button>
             </div>
         </header>
-    )
+    );
 }
