@@ -15,9 +15,7 @@ export function Header() {
     const getAvatar = (name, avatar_url) => {
         return (
             avatar_url ||
-            `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(
-                name || "Guest"
-            )}`
+            `https://res.cloudinary.com/dool6mmp1/image/upload/v1757595867/Capture_igxch6.jpg`
         );
     };
 
