@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { UserPlus, LogIn, LogOut } from "lucide-react"
-import "./UserPanel.scss"
 
 const API = "http://localhost/Planit-Todo-App/backend/api"
 
@@ -22,38 +21,43 @@ export function UserPanel() {
     }, [])
 
     // Add new user
-    const handleAddUser = (e) => {
-        e.preventDefault()
-        if (!newUser.name.trim()) {
-            alert("Please enter a name.")
-            return
+    // Add new user
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            name: newUser.name,
+            email: newUser.email,
+            is_main_user: newUser.is_main_user ? 1 : 0,
+            avatar_url: newUser.avatar_url,
         }
 
-        fetch(`${API}/addUser.php`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                ...newUser,
-                is_main_user: newUser.is_main_user ? 1 : 0,
-            }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success) {
-                    setUsers((prev) => [
-                        {
-                            id: data.user_id,
-                            ...newUser,
-                            created_at: new Date().toISOString(),
-                            is_logged_in: 0,
-                        },
-                        ...prev,
-                    ])
-                    setNewUser({ name: "", email: "", avatar_url: "", is_main_user: false })
-                }
-            })
-            .catch(console.error)
-    }
+        console.log("📦 Sending user JSON:", payload); // ✅ check payload
+        console.log("📤 JSON stringified:", JSON.stringify(payload)); // ✅ check exact body
+
+        try {
+            const res = await fetch(`${API}/addUser.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            console.log("📥 Raw response:", res);
+
+            const text = await res.text(); // read raw body for debugging
+            console.log("📄 Raw response text:", text);
+
+            const data = JSON.parse(text);
+            console.log("✅ Parsed JSON:", data);
+
+            if (data.success) alert("✅ User added!");
+            else alert("❌ " + data.error);
+        } catch (err) {
+            console.error("Add user failed:", err);
+        }
+    };
+
+
 
     // Toggle login/logout
     const toggleLogin = (userId, currentState) => {
