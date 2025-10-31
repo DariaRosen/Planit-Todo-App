@@ -13,29 +13,24 @@ export function WeekPlanner() {
 
     const API = "http://localhost/Planit-Todo-App/backend/api"
 
-    // 🧩 Generate days with optional data merge
+    // 🧠 Generate days — merge auto & saved tasks correctly
     const generateDays = (taskList = [], dayTasks = []) => {
         const today = new Date()
+
+        // Collect all saved (persisted) task titles for fast lookup
+        const savedPairs = new Set(
+            dayTasks.map((dt) => `${dt.day_date}-${dt.task_id}`)
+        )
 
         return Array.from({ length: 14 }, (_, i) => {
             const date = new Date(today)
             date.setDate(today.getDate() + currentOffset + i)
 
             const name = date.toLocaleDateString("en-US", { weekday: "long" })
-            const shortDate = date.toLocaleDateString("en-US", {
-                day: "numeric",
-                month: "numeric",
-            })
+            const shortDate = date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" })
             const fullDate = date.toISOString().split("T")[0]
 
-            // 🧠 Base tasks (daily/weekly auto-assign)
-            const autoTasks = taskList.filter((t) => {
-                if (t.frequency === "daily") return true
-                if (t.frequency === "weekly" && name === "Monday") return true
-                return false
-            })
-
-            // 🧠 Merge persisted tasks from DB
+            // Filter DB-saved tasks for that date
             const savedTasks = dayTasks
                 .filter((dt) => dt.day_date === fullDate)
                 .map((dt) => ({
@@ -45,22 +40,35 @@ export function WeekPlanner() {
                     status: dt.status,
                 }))
 
-            // Merge auto + saved tasks, but remove duplicates
-            const combined = [...autoTasks, ...savedTasks]
-                .filter(
-                    (task, index, self) =>
-                        index === self.findIndex((t) => t.id === task.id || t.title === task.title)
-                )
+            // Generate auto daily/weekly tasks based on daily_amount
+            const autoTasks = taskList.flatMap((t) => {
+                const isDaily = t.frequency === "daily"
+                const isWeeklyMonday = t.frequency === "weekly" && name === "Monday"
+                const alreadySaved = savedPairs.has(`${fullDate}-${t.id}`)
+                const count = t.daily_amount || (isDaily ? 1 : 0)
 
-            return { name, date: shortDate, fullDate, tasks: combined }
+                if ((isDaily || isWeeklyMonday) && !alreadySaved && count > 0) {
+                    // create 'count' copies
+                    return Array.from({ length: count }, (_, idx) => ({
+                        ...t,
+                        id: `${t.id}-${idx}`,
+                        duplicateIndex: idx,
+                    }))
+                }
+                return []
+            })
+
+            return { name, date: shortDate, fullDate, tasks: [...savedTasks, ...autoTasks] }
         })
     }
 
-    // 🔄 Load both tasks and day-tasks once
+
+
+    // 🔄 Load both main tasks and day-tasks
     useEffect(() => {
         Promise.all([
             fetch(`${API}/getTasks.php`).then((res) => res.json()),
-            fetch(`${API}/getDayTasks.php`).then((res) => res.json())
+            fetch(`${API}/getDayTasks.php`).then((res) => res.json()),
         ])
             .then(([allTasks, dayTasks]) => {
                 setTasks(allTasks)
@@ -69,8 +77,7 @@ export function WeekPlanner() {
             .catch(console.error)
     }, [currentOffset])
 
-
-    // ✅ Task actions
+    // ✅ Approve / Remove / Revert task handlers
     const handleApprove = (day, taskId) => {
         setTaskState((prev) => ({
             ...prev,
@@ -89,7 +96,7 @@ export function WeekPlanner() {
         }))
     }
 
-    // 🧲 Drag handling
+    // 🧲 Handle drag and drop
     const handleDragEnd = (event) => {
         const { active, over } = event
         if (!over) return
@@ -110,7 +117,7 @@ export function WeekPlanner() {
                         t.title.toLowerCase() === taskData.title.toLowerCase()
                 )
 
-                // 🟢 Ask before inserting duplicate
+                // 🟡 Ask before inserting duplicate
                 if (alreadyExists) {
                     const confirmDuplicate = window.confirm(
                         `The task "${taskData.title}" already exists in ${day.name}. Add again anyway?`
@@ -118,7 +125,7 @@ export function WeekPlanner() {
                     if (!confirmDuplicate) return day
                 }
 
-                // 🧠 Save to DB only after confirmation
+                // 💾 Save to DB
                 fetch(`${API}/addDayTask.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -128,13 +135,17 @@ export function WeekPlanner() {
                 return {
                     ...day,
                     tasks: alreadyExists
-                        ? [...day.tasks, { ...taskData, id: `${taskId}-dup-${Date.now()}` }]
+                        ? [
+                            ...day.tasks,
+                            { ...taskData, id: `${taskId}-dup-${Date.now()}` }, // keep visible duplicate
+                        ]
                         : [...day.tasks, taskData],
                 }
             })
         )
     }
 
+    // 🧭 Arrows
     const showNext = () => setCurrentOffset((prev) => prev + 1)
     const showPrev = () => setCurrentOffset((prev) => prev - 1)
     const visibleDays = days.slice(0, 4)
@@ -147,14 +158,14 @@ export function WeekPlanner() {
                     <TaskPanel tasks={tasks} />
                 </div>
 
-                {/* 🧭 Header with arrows */}
+                {/* 🧭 Header */}
                 <div className="week-planner-header">
                     <button onClick={showPrev} className="arrow-btn">◀</button>
                     <h2 className="week-title">Planit Timeline</h2>
                     <button onClick={showNext} className="arrow-btn">▶</button>
                 </div>
 
-                {/* 📅 Days */}
+                {/* 📅 Planner */}
                 <div className="week-planner">
                     {visibleDays.map((day) => (
                         <DroppableDay key={day.fullDate} day={day}>
@@ -166,31 +177,42 @@ export function WeekPlanner() {
                             <ul className="task-list">
                                 {day.tasks
                                     .filter(Boolean)
-                                    .filter((t) => taskState[day.fullDate]?.[t.id] !== "removed")
+                                    .filter(
+                                        (t) => taskState[day.fullDate]?.[t.id] !== "removed"
+                                    )
                                     .sort((a, b) => {
                                         const aState = taskState[day.fullDate]?.[a.id]
                                         const bState = taskState[day.fullDate]?.[b.id]
-                                        if (aState === "approved" && bState !== "approved") return 1
-                                        if (aState !== "approved" && bState === "approved") return -1
+                                        if (
+                                            aState === "approved" &&
+                                            bState !== "approved"
+                                        )
+                                            return 1
+                                        if (
+                                            aState !== "approved" &&
+                                            bState === "approved"
+                                        )
+                                            return -1
                                         return 0
                                     })
                                     .map((t) => {
-                                        const state = taskState[day.fullDate]?.[t.id] || "pending"
+                                        const state =
+                                            taskState[day.fullDate]?.[t.id] || "pending"
                                         return (
-                                            <li
-                                                key={t.id}
-                                                className={`task-item ${state === "approved" ? "approved" : ""
-                                                    }`}
-                                            >
+                                            <li key={`${day.fullDate}-${t.id}`} className={`task-item ${state === "approved" ? "approved" : ""}`}>
                                                 <div className="task-left">
                                                     <TaskIcon title={t.title} />
-                                                    <span className="task-text">{t.title}</span>
+                                                    <span className="task-text">
+                                                        {t.title}
+                                                    </span>
                                                 </div>
                                                 <div className="task-actions">
                                                     {state === "approved" ? (
                                                         <button
                                                             className="revert-btn"
-                                                            onClick={() => handleApprove(day, t.id)}
+                                                            onClick={() =>
+                                                                handleApprove(day, t.id)
+                                                            }
                                                         >
                                                             <RotateCcw size={18} />
                                                         </button>
@@ -198,13 +220,20 @@ export function WeekPlanner() {
                                                         <>
                                                             <button
                                                                 className="approve-btn"
-                                                                onClick={() => handleApprove(day, t.id)}
+                                                                onClick={() =>
+                                                                    handleApprove(
+                                                                        day,
+                                                                        t.id
+                                                                    )
+                                                                }
                                                             >
                                                                 <Check size={18} />
                                                             </button>
                                                             <button
                                                                 className="remove-btn"
-                                                                onClick={() => handleRemove(day, t.id)}
+                                                                onClick={() =>
+                                                                    handleRemove(day, t.id)
+                                                                }
                                                             >
                                                                 <X size={18} />
                                                             </button>
