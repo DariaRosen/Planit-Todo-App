@@ -3,7 +3,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST");
 
-include '../config/db.php';
+include(__DIR__ . '/../db_connect.php');
 
 $data = json_decode(file_get_contents("php://input"), true);
 $user_id = $data["user_id"];
