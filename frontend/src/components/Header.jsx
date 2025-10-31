@@ -1,29 +1,38 @@
-import { NavLink } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom"
+import { useState, useEffect } from "react"
 
 export function Header() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [user, setUser] = useState(null);
+    const [menuOpen, setMenuOpen] = useState(false)
+    const [user, setUser] = useState(null)
 
-    // ✅ Load the logged-in user from localStorage
+    // ✅ Load and keep user synced with localStorage
     useEffect(() => {
-        const stored = localStorage.getItem("loggedinUser");
-        if (stored) setUser(JSON.parse(stored));
-    }, []);
+        const loadUser = () => {
+            const stored = localStorage.getItem("loggedinUser")
+            setUser(stored ? JSON.parse(stored) : null)
+        }
 
-    // ✅ Generate a fallback avatar if none exists
-    const getAvatar = (name, avatar_url) => {
-        return (
-            avatar_url ||
-            `https://res.cloudinary.com/dool6mmp1/image/upload/v1757595867/Capture_igxch6.jpg`
-        );
-    };
+        // initial load
+        loadUser()
 
-    // ✅ Handle logout
+        // listen for login/logout updates (even from UserPanel)
+        window.addEventListener("storage", loadUser)
+        return () => window.removeEventListener("storage", loadUser)
+    }, [])
+
+    // ✅ Generate fallback avatar if none exists
+    const getAvatar = (name, avatar_url) =>
+        avatar_url ||
+        "https://res.cloudinary.com/dool6mmp1/image/upload/v1757595867/Capture_igxch6.jpg"
+
+    // ✅ Logout handler
     const handleLogout = () => {
-        localStorage.removeItem("loggedinUser");
-        setUser(null);
-    };
+        localStorage.removeItem("loggedinUser")
+        setUser(null)
+
+        // force update for same-tab components
+        window.dispatchEvent(new Event("storage"))
+    }
 
     return (
         <header className="app-header">
@@ -70,5 +79,5 @@ export function Header() {
                 </button>
             </div>
         </header>
-    );
+    )
 }
