@@ -16,6 +16,9 @@ export function Header() {
                     <NavLink to="/tasks" className="nav-item">
                         Tasks
                     </NavLink>
+                    <NavLink to="/user" className="nav-item">
+                        User Panel
+                    </NavLink>
                 </nav>
 
                 <button
