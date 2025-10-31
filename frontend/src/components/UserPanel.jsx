@@ -147,7 +147,7 @@ export function UserPanel() {
                 </>
             )}
 
-            <div className="user-list">
+            {loggedInUser && (<div className="user-list">
                 {users.length === 0 && <p className="no-users">No users yet</p>}
 
                 {users.map((user) => (
@@ -173,27 +173,9 @@ export function UserPanel() {
                                 </p>
                             </div>
                         </div>
-
-                        <button
-                            className={`login-btn ${user.is_logged_in ? "logout" : "login"
-                                }`}
-                            onClick={() => toggleLogin(user.id, user.is_logged_in)}
-                        >
-                            {user.is_logged_in ? (
-                                <>
-                                    <LogOut size={16} />
-                                    Logout
-                                </>
-                            ) : (
-                                <>
-                                    <LogIn size={16} />
-                                    Login
-                                </>
-                            )}
-                        </button>
                     </div>
                 ))}
-            </div>
+            </div>)}
         </aside>
     )
 }
