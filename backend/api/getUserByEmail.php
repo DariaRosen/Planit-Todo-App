@@ -15,6 +15,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 // ---- Connect to DB ----
 include(__DIR__ . '/../db_connect.php');
+include('cors.php');
 
 // ---- Validate email parameter ----
 if (!isset($_GET['email'])) {

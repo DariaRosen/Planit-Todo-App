@@ -4,6 +4,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header('Content-Type: application/json');
 
+include('cors.php');
 include_once '../db_connect.php';
 
 // Read JSON body
