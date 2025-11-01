@@ -22,7 +22,7 @@ export function WeekPlanner() {
             dayTasks.map((dt) => `${dt.day_date}-${dt.task_id}`)
         )
 
-        return Array.from({ length: 14 }, (_, i) => {
+        return Array.from({ length: 7 }, (_, i) => {
             const date = new Date(today)
             date.setDate(today.getDate() + currentOffset + i)
 
