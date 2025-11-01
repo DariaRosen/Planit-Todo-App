@@ -1,72 +1,57 @@
-import { useEffect } from "react"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { PlanitLayout } from "./layouts/PlanitLayout"
-import { WeekPlanner } from "./pages/WeekPlanner"
-import { Tasks } from "./pages/Tasks"
-import { UserPanel } from "./components/UserPanel"
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Header } from "./components/Header";
+import { WeekPlanner } from "./pages/WeekPlanner";
+import { Tasks } from "./pages/Tasks";
+import { UserPanel } from "./pages/UserPanel";
 
-const API = "http://localhost/Planit-Todo-App/backend/api"
+const API = "http://localhost/Planit-Todo-App/backend/api";
 
-export function App() {
+export default function App() {
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
-    const email = "daria.sk135@gmail.com"
-
     async function autoLoginUser() {
       try {
-        console.log("🔍 Checking for hardcoded user…")
-
-        const res = await fetch(`${API}/getUserByEmail.php?email=${encodeURIComponent(email)}`)
-        console.log("📡 Response status:", res.status)
-
-        const text = await res.text()
-        console.log("🧾 Raw response text:", text)
-
-        const data = JSON.parse(text)
-        console.log("✅ Parsed data:", data)
+        console.log("🔍 Checking for hardcoded user: Daria");
+        const res = await fetch(`${API}/getUserByEmail.php?email=daria.sk135@gmail.com`);
+        const data = await res.json();
+        console.log("📡 Response:", data);
 
         if (data.success && data.user) {
-          console.log("🎉 Found user in DB:", data.user)
+          const dbUser = data.user;
 
-          const user = data.user
-
-          // If user is logged out in DB, log them in automatically
-          if (user.is_logged_in === 0) {
-            console.log("🔄 User is logged out — updating to logged in…")
-
-            await fetch(`${API}/updateUserStatus.php`, {
+          if (dbUser.is_logged_in === 0) {
+            console.log("🔄 Daria is logged out, logging in automatically...");
+            await fetch(`${API}/login.php`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ user_id: user.id, is_logged_in: 1 }),
-            })
-
-            console.log("✅ User marked as logged in in DB")
-            user.is_logged_in = 1
+              body: JSON.stringify({ email: dbUser.email }),
+              credentials: "include",
+            });
           }
 
-          // Store locally for the session
-          localStorage.setItem("loggedinUser", JSON.stringify(user))
+          setUser(dbUser);
+          console.log("✅ Auto-login successful for Daria");
         } else {
-          console.warn("⚠️ Hardcoded user not found in DB or invalid response:", data)
+          console.warn("⚠️ Could not find Daria in DB.");
         }
       } catch (err) {
-        console.error("💥 Auto login check failed:", err)
+        console.error("💥 Auto-login failed:", err);
       }
     }
 
-    autoLoginUser()
-  }, [])
+    autoLoginUser();
+  }, []);
 
   return (
     <Router>
+      <Header user={user} setUser={setUser} />
       <Routes>
-        <Route element={<PlanitLayout />}>
-          <Route path="/" element={<WeekPlanner />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/user" element={<UserPanel />} />
-        </Route>
+        <Route path="/" element={<WeekPlanner />} />
+        <Route path="/tasks" element={<Tasks />} />
+        {user && <Route path="/user" element={<UserPanel />} />}
       </Routes>
     </Router>
-  )
+  );
 }
-
-export default App
