@@ -10,24 +10,36 @@ const API = "http://localhost/Planit-Todo-App/backend/api"
 
 export default function App() {
   const [user, setUser] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // ✅ Restore saved user from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("loggedinUser")
-    if (stored) {
-      setUser(JSON.parse(stored))
-    } else {
-      autoLoginDaria()
+    async function initUser() {
+      try {
+        const stored = localStorage.getItem("loggedinUser")
+
+        if (stored) {
+          console.log("📦 Found user in localStorage.")
+          setUser(JSON.parse(stored))
+        } else {
+          console.log("🔍 No local user, running auto-login for Daria...")
+          await autoLoginDaria()
+        }
+      } catch (err) {
+        console.error("💥 Error initializing user:", err)
+      } finally {
+        // ✅ Ensure we mark loading as done after either case
+        setIsLoading(false)
+      }
     }
+
+    initUser()
   }, [])
 
-  // ✅ Auto-login logic for Daria (runs once if no local user)
   async function autoLoginDaria() {
     try {
-      console.log("🔍 Checking for hardcoded user: Daria")
       const res = await fetch(`${API}/getUserByEmail.php?email=daria.sk135@gmail.com`)
       const data = await res.json()
-      console.log("📡 Response:", data)
+      console.log("📡 Auto-login check response:", data)
 
       if (data.success && data.user) {
         const dbUser = data.user
@@ -43,8 +55,8 @@ export default function App() {
         }
 
         dbUser.is_logged_in = 1
-        setUser(dbUser)
         localStorage.setItem("loggedinUser", JSON.stringify(dbUser))
+        setUser(dbUser)
         console.log("✅ Auto-login successful for Daria")
       } else {
         console.warn("⚠️ Daria not found in DB.")
@@ -54,7 +66,6 @@ export default function App() {
     }
   }
 
-  // ✅ Global logout handler
   const handleLogout = async () => {
     if (!user) return
     try {
@@ -69,6 +80,16 @@ export default function App() {
     }
     localStorage.removeItem("loggedinUser")
     setUser(null)
+  }
+
+  // ✅ Prevent premature rendering
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <h2>🪐 Planit</h2>
+        <p>Loading your profile...</p>
+      </div>
+    )
   }
 
   return (
