@@ -7,9 +7,51 @@ export function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [user, setUser] = useState(null);
 
+    // ✅ Auto login for Daria when app loads
     useEffect(() => {
-        const stored = localStorage.getItem("loggedinUser");
-        if (stored) setUser(JSON.parse(stored));
+        async function autoLoginUser() {
+            try {
+                console.log("🔍 Checking for Daria user...");
+                const res = await fetch(`${API}/getUserByEmail.php?email=daria.sk135@gmail.com`);
+                const data = await res.json();
+
+                if (data.success && data.user) {
+                    const dbUser = data.user;
+                    console.log("📡 Found user in DB:", dbUser);
+
+                    // If Daria is logged out, log her in automatically
+                    if (dbUser.is_logged_in === 0) {
+                        console.log("🔄 User is logged out — updating to logged in...");
+                        const loginRes = await fetch(`${API}/updateUserStatus.php`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ user_id: dbUser.id, is_logged_in: 1 }),
+                        });
+
+                        const loginText = await loginRes.text();
+                        console.log("🧾 Login response text:", loginText);
+
+                        const loginData = JSON.parse(loginText);
+                        if (loginData.success) {
+                            console.log("✅ Daria auto-logged in successfully!");
+                            dbUser.is_logged_in = 1;
+                        } else {
+                            console.warn("⚠️ Auto login API returned error:", loginData);
+                        }
+                    }
+
+                    // Save user locally for header display
+                    localStorage.setItem("loggedinUser", JSON.stringify(dbUser));
+                    setUser(dbUser);
+                } else {
+                    console.warn("⚠️ Hardcoded user not found in DB.");
+                }
+            } catch (err) {
+                console.error("💥 Auto login failed:", err);
+            }
+        }
+
+        autoLoginUser();
     }, []);
 
     const getAvatar = (name, avatar_url) => {
@@ -19,7 +61,7 @@ export function Header() {
         );
     };
 
-    // ✅ Update backend and frontend when user logs out
+    // ✅ Logout logic (DB + local cleanup)
     const handleLogout = async () => {
         if (!user) return;
 
@@ -46,7 +88,7 @@ export function Header() {
             console.error("💥 Logout failed:", err);
         }
 
-        // Clean up local state no matter what
+        // Clean up local state regardless
         localStorage.removeItem("loggedinUser");
         setUser(null);
     };
@@ -63,9 +105,13 @@ export function Header() {
                     <NavLink to="/tasks" className="nav-item">
                         Tasks
                     </NavLink>
-                    <NavLink to="/user" className="nav-item">
-                        User Panel
-                    </NavLink>
+
+                    {/* ✅ Show User Panel only if logged in */}
+                    {user && (
+                        <NavLink to="/user" className="nav-item">
+                            User Panel
+                        </NavLink>
+                    )}
                 </nav>
 
                 <div className="user-section">
@@ -76,8 +122,13 @@ export function Header() {
                                 alt={user.name}
                                 className="avatar"
                             />
-                            <span className="greeting">Hello, {user.name} 👋</span>
-                            <button className="logout-btn" onClick={handleLogout}>
+                            <span className="greeting">
+                                Hello, {user.name} 👋
+                            </span>
+                            <button
+                                className="logout-btn"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </button>
                         </div>
