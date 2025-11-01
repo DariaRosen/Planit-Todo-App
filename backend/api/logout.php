@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+include('cors.php');
 include(__DIR__ . '/../db_connect.php');
 
 if (isset($_SESSION['user_id'])) {
