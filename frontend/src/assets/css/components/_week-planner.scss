@@ -19,7 +19,7 @@
     }
 
     .arrow-btn {
-      background: #3b82f6;
+      background: $color-button;
       color: white;
       border: none;
       border-radius: 6px;
@@ -29,8 +29,12 @@
       cursor: pointer;
       transition: background 0.2s ease;
 
+      display: flex;
+      align-items: center; // vertically center
+      justify-content: center; // horizontally center
+
       &:hover:not(:disabled) {
-        background: #2563eb;
+        background: #299764;
       }
 
       &:disabled {
