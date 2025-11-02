@@ -1,78 +1,124 @@
 <?php
-// Allow requests from your frontend
+// 🧩 Enable CORS (for your local React frontend)
 header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Access-Control-Allow-Credentials: true");
+header("Content-Type: application/json; charset=UTF-8");
 
-// Handle preflight (OPTIONS) requests
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit();
+    exit;
 }
 
-require_once('../config.php'); // include DB connection
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-header("Content-Type: application/json");
+// 🧠 Include session and DB
+require_once(__DIR__ . '/../checkSession.php');
+require_once(__DIR__ . '/../db_connect.php');
 
-// Get POST body
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Assume you send the user_id (optional)
-$user_id = $data['user_id'] ?? null;
-
-// 1️⃣ Fetch latest day_date from day_tasks table
-$stmt = $pdo->query("SELECT MAX(day_date) AS last_date FROM day_tasks");
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-$last_date = $row['last_date'] ?? null;
-
-// 2️⃣ Determine start date (today if empty, otherwise +1 day)
-$start_date = $last_date ? date('Y-m-d', strtotime("$last_date +1 day")) : date('Y-m-d');
-
-// 3️⃣ Generate next 7 days
-$days = [];
-for ($i = 0; $i < 7; $i++) {
-    $days[] = date('Y-m-d', strtotime("$start_date +$i day"));
+// ✅ Make sure the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["success" => false, "error" => "User not authenticated"]);
+    exit;
 }
 
-// 4️⃣ Get all tasks
-$stmt = $pdo->query("SELECT * FROM tasks");
-$tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$user_id = $_SESSION['user_id'];
 
-// 5️⃣ Prepare insert
-$insertStmt = $pdo->prepare("
-    INSERT INTO day_tasks (task_id, day_date, status)
-    VALUES (:task_id, :day_date, 'pending')
-");
+try {
+    // 1️⃣ Get the latest day stored for this user
+    $stmt = $conn->prepare("SELECT MAX(day_date) AS last_date FROM day_tasks WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $last_date = $row['last_date'] ?? null;
+    $stmt->close();
 
-// 6️⃣ Loop through days and tasks
-foreach ($days as $day) {
-    $weekday = date('l', strtotime($day)); // Monday, Tuesday, etc.
+    // 2️⃣ Count how many future days already exist
+    $today = date('Y-m-d');
+    $stmt = $conn->prepare("
+        SELECT COUNT(DISTINCT day_date) AS future_count
+        FROM day_tasks
+        WHERE user_id = ? AND day_date >= ?
+    ");
+    $stmt->bind_param("is", $user_id, $today);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+    $existingFutureCount = $res['future_count'] ?? 0;
+    $stmt->close();
 
-    foreach ($tasks as $task) {
-        $isDaily = $task['frequency'] === 'daily';
-        $isWeeklyMonday = $task['frequency'] === 'weekly' && $weekday === 'Monday';
+    // 3️⃣ If user already has 7 upcoming days, stop
+    if ($existingFutureCount >= 7) {
+        echo json_encode([
+            "success" => true,
+            "message" => "User already has 7 upcoming days — nothing added",
+            "days" => []
+        ]);
+        exit;
+    }
 
-        if ($isDaily || $isWeeklyMonday) {
-            // Check if already exists
-            $checkStmt = $pdo->prepare("
-                SELECT COUNT(*) FROM day_tasks
-                WHERE task_id = :task_id AND day_date = :day_date
-            ");
-            $checkStmt->execute([
-                ':task_id' => $task['id'],
-                ':day_date' => $day
-            ]);
-            $exists = $checkStmt->fetchColumn();
+    // 4️⃣ Generate missing days (up to 7 total)
+    $daysToAdd = 7 - $existingFutureCount;
+    $start_date = $last_date ? date('Y-m-d', strtotime("$last_date +1 day")) : $today;
 
-            if (!$exists) {
-                $insertStmt->execute([
-                    ':task_id' => $task['id'],
-                    ':day_date' => $day
-                ]);
+    $days = [];
+    for ($i = 0; $i < $daysToAdd; $i++) {
+        $days[] = date('Y-m-d', strtotime("$start_date +$i day"));
+    }
+
+    // 5️⃣ Get all base tasks for this user
+    $tasks = [];
+    $stmt = $conn->prepare("SELECT * FROM tasks WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($t = $res->fetch_assoc()) $tasks[] = $t;
+    $stmt->close();
+
+    // 6️⃣ Prepare inserts
+    $insertStmt = $conn->prepare("
+        INSERT INTO day_tasks (task_id, day_date, status, user_id)
+        VALUES (?, ?, 'pending', ?)
+    ");
+
+    foreach ($days as $day) {
+        $weekday = date('l', strtotime($day));
+
+        foreach ($tasks as $task) {
+            $isDaily = $task['frequency'] === 'daily';
+            $isWeeklyMonday = $task['frequency'] === 'weekly' && $weekday === 'Monday';
+
+            if ($isDaily || $isWeeklyMonday) {
+                // Check if already exists
+                $checkStmt = $conn->prepare("
+                    SELECT COUNT(*) AS cnt
+                    FROM day_tasks
+                    WHERE task_id = ? AND day_date = ? AND user_id = ?
+                ");
+                $checkStmt->bind_param("isi", $task['id'], $day, $user_id);
+                $checkStmt->execute();
+                $exists = $checkStmt->get_result()->fetch_assoc()['cnt'] ?? 0;
+                $checkStmt->close();
+
+                if ($exists == 0) {
+                    $insertStmt->bind_param("isi", $task['id'], $day, $user_id);
+                    $insertStmt->execute();
+                }
             }
         }
     }
-}
 
-echo json_encode(["success" => true, "message" => "Next 7 days generated successfully", "days" => $days]);
+    $insertStmt->close();
+
+    echo json_encode([
+        "success" => true,
+        "message" => "Next 7 days generated successfully for user $user_id",
+        "days" => $days
+    ]);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+}
