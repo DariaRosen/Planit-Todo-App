@@ -8,6 +8,35 @@ export function WeekPlanner() {
     const [days, setDays] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [signupDate, setSignupDate] = useState(null)
+    const handleDragEnd = (event) => {
+        const { active, over } = event
+        if (!over) return
+
+        const taskData = active.data?.current
+        if (!taskData) return
+
+        const targetDay = over.id.replace("day-", "")
+
+        setDays((prev) =>
+            prev.map((day) => {
+                if (day.fullDate !== targetDay) return day
+
+                const alreadyExists = day.tasks.some((t) => t.id === taskData.id)
+                if (alreadyExists) return day
+
+                // 💾 Save to DB
+                fetch(`${API}/addDayTask.php`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ task_id: taskData.id, day_date: targetDay }),
+                }).catch(console.error)
+
+                return { ...day, tasks: [...day.tasks, taskData] }
+            })
+        )
+    }
+
 
     // 🧭 Load signup date using user email
     useEffect(() => {
