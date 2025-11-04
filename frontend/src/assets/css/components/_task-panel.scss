@@ -228,13 +228,15 @@
   }
 }
 
-/* -----------------------------
-   DRAGGING BEHAVIOR
------------------------------ */
+/* ---------------------------------
+   DRAGGABLE ELEMENTS (lift on drag)
+---------------------------------- */
 .draggable {
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
+  will-change: transform;
+  z-index: 1; // default layer
 
   &:active {
     cursor: grabbing;
@@ -242,15 +244,20 @@
   }
 }
 
+/* When element is actively being dragged */
+.draggable[data-dragging="true"] {
+  position: absolute !important; /* ✅ take out of normal flow */
+  z-index: 99999 !important; /* ✅ highest priority */
+  pointer-events: none; /* ✅ prevents interference */
+  transform: translateZ(0); /* ✅ GPU acceleration */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25); /* visible elevation */
+}
+
 .day-over {
   background: #dbeafe !important;
   transition: background 0.2s ease;
 }
 
-.draggable[data-dragging="true"] {
-  z-index: 9999 !important;
-  position: relative;
-}
 
 /* -----------------------------
    TODAY HIGHLIGHT
