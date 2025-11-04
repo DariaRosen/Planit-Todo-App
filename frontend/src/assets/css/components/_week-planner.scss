@@ -263,3 +263,17 @@
   z-index: 9999 !important;
   position: relative;
 }
+
+/* Highlight today's card */
+.day-column.today,
+.day-title.today {
+  border: 2px solid #10b981; // green outline
+  background: #ecfdf5; // light green background
+  font-weight: 700;
+  transition: background 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background: #d1fae5;
+    transform: translateY(-2px);
+  }
+}
