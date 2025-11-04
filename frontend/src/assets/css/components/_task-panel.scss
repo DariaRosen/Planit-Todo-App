@@ -52,3 +52,13 @@
     font-size: 0.9rem;
   }
 }
+
+.task-chip.weekly {
+  background: #e0f2fe;
+  border: 1px solid #38bdf8;
+}
+
+.task-chip.as_needed {
+  background: #fef9c3;
+  border: 1px solid #facc15;
+}

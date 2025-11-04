@@ -1,5 +1,31 @@
 import { useEffect, useState } from "react"
+import { useDraggable } from "@dnd-kit/core"
 import { TaskIcon } from "./TaskIcon"
+
+function DraggableTask({ task }) {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: `task-${task.id}`,
+        data: { ...task },
+    })
+
+    const style = {
+        transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
+        opacity: isDragging ? 0.5 : 1,
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            {...listeners}
+            {...attributes}
+            className={`task-chip draggable ${task.frequency}`}
+            style={style}
+        >
+            <TaskIcon title={task.title} />
+            <span>{task.title}</span>
+        </div>
+    )
+}
 
 export function TaskPanel() {
     const API = "http://localhost/Planit-Todo-App/backend/api"
@@ -15,7 +41,6 @@ export function TaskPanel() {
                 if (data.success && Array.isArray(data.tasks)) {
                     setTasks(data.tasks)
                 } else {
-                    console.warn("⚠️ No tasks returned")
                     setTasks([])
                 }
             })
@@ -27,17 +52,7 @@ export function TaskPanel() {
             <h3 className="task-panel-title">Choose Tasks:</h3>
             <div className="task-panel-list">
                 {tasks.length > 0 ? (
-                    tasks.map((task) => (
-                        <div
-                            key={task.id}
-                            className={`task-chip draggable ${task.frequency}`}
-                            draggable
-                            data-id={task.id}
-                        >
-                            <TaskIcon title={task.title} />
-                            {task.title}
-                        </div>
-                    ))
+                    tasks.map((task) => <DraggableTask key={task.id} task={task} />)
                 ) : (
                     <p className="no-tasks">No tasks yet.</p>
                 )}
