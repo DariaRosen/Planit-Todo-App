@@ -18,11 +18,11 @@ function DraggableTask({ task }) {
             ref={setNodeRef}
             {...listeners}
             {...attributes}
-            className={`task-chip draggable ${task.frequency}`}
+            className={`task-block draggable ${task.frequency}`}
             style={style}
         >
             <TaskIcon title={task.title} />
-            <span>{task.title}</span>
+            <span className="task-title">{task.title}</span>
         </div>
     )
 }
@@ -50,7 +50,7 @@ export function TaskPanel() {
     return (
         <div className="task-panel">
             <h3 className="task-panel-title">Choose Tasks:</h3>
-            <div className="task-panel-list">
+            <div className="task-blocks">
                 {tasks.length > 0 ? (
                     tasks.map((task) => <DraggableTask key={task.id} task={task} />)
                 ) : (
