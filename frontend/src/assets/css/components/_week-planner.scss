@@ -267,10 +267,11 @@
 /* Highlight today's card */
 .day-column.today,
 .day-title.today {
-  border: 2px solid #10b981; // green outline
-  background: #ecfdf5; // light green background
-  font-weight: 700;
-  transition: background 0.3s ease, transform 0.2s ease;
+  border: 2px solid #10b981;      // vivid green border
+  background: #ecfdf5;            // light green
+  font-weight: 800;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  transform: scale(1.02);
 
   &:hover {
     background: #d1fae5;
