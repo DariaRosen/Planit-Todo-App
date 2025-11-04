@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:5173");
 include(__DIR__ . '/../db_connect.php');
 include('cors.php');
 
