@@ -23,6 +23,7 @@ export function WeekPlanner() {
         const targetDay = over.id.replace("day-", "")
         console.log("🗓 Dropped task", taskData.title, "into", targetDay)
 
+        // Add task visually
         setDays((prev) =>
             prev.map((day) => {
                 if (day.fullDate !== targetDay) return day
@@ -92,7 +93,7 @@ export function WeekPlanner() {
             .catch(() => setSignupDate(new Date()))
     }, [])
 
-    // ✅ Build all days (from signup to today + next 7)
+    // ✅ Build full day list
     useEffect(() => {
         if (!signupDate) return
 
@@ -105,6 +106,7 @@ export function WeekPlanner() {
             d.setHours(0, 0, 0, 0)
             allDays.push(new Date(d))
         }
+
         for (let i = 1; i <= 7; i++) {
             const future = new Date(today)
             future.setDate(today.getDate() + i)
@@ -112,68 +114,63 @@ export function WeekPlanner() {
             allDays.push(future)
         }
 
-        const formatted = allDays.map((date) => {
-            const isToday = date.toDateString() === today.toDateString()
-            return {
-                fullDate: date.toISOString().split("T")[0],
-                name: date.toLocaleDateString("en-US", { weekday: "long" }),
-                short: date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" }),
-                isToday,
-                tasks: [],
-            }
-        })
+        const formatted = allDays.map((date) => ({
+            fullDate: date.toISOString().split("T")[0],
+            name: date.toLocaleDateString("en-US", { weekday: "long" }),
+            short: date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" }),
+            isToday: date.toDateString() === today.toDateString(),
+            tasks: [],
+        }))
 
         setDays(formatted)
         const todayIndex = formatted.findIndex((d) => d.isToday)
         if (todayIndex !== -1) setCurrentIndex(todayIndex)
     }, [signupDate])
 
-    // ✅ Sync daily tasks + load tasks from DB
+    // ✅ Sync daily tasks → then load tasks
     useEffect(() => {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?.id || days.length === 0) return
 
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
-        const syncDaily = async () => {
+        const daysParam = visibleDays.map((d) => d.fullDate).join(",")
+
+        const syncAndLoad = async () => {
             try {
-                const res = await fetch(`${API}/syncDailyTasks.php`, {
+                console.log("🟢 Syncing for user:", loggedUser.id)
+
+                // Step 1: sync daily tasks
+                const syncRes = await fetch(`${API}/syncDailyTasks.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_id: loggedUser.id }),
                     credentials: "include",
                 })
-                const data = await res.json()
-                console.log("🔄 Daily tasks sync:", data)
-            } catch (err) {
-                console.error("❌ Failed to sync daily tasks:", err)
-            }
-        }
+                const syncData = await syncRes.json()
+                console.log("🔄 Sync result:", syncData)
 
-        const loadDayTasks = async () => {
-            const dayStr = visibleDays.map((d) => d.fullDate).join(",")
-            try {
-                const res = await fetch(
-                    `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${dayStr}`
+                // Step 2: load tasks from DB
+                const loadRes = await fetch(
+                    `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${daysParam}`
                 )
-                const data = await res.json()
-                if (data.success && data.tasks) {
+                const loadData = await loadRes.json()
+                console.log("📅 Loaded tasks:", loadData)
+
+                if (loadData.success && loadData.tasks) {
                     setDays((prev) =>
                         prev.map((day) => ({
                             ...day,
-                            tasks: data.tasks[day.fullDate] || day.tasks,
+                            tasks: loadData.tasks[day.fullDate] || [],
                         }))
                     )
                 }
             } catch (err) {
-                console.error("❌ Error loading day tasks:", err)
+                console.error("❌ Error syncing/loading tasks:", err)
             }
         }
 
-            ; (async () => {
-                await syncDaily()
-                await loadDayTasks()
-            })()
-    }, [days.length, currentIndex])
+        syncAndLoad()
+    }, [currentIndex, days.length])
 
     // ✅ Pagination
     const showNext = () => setCurrentIndex((prev) => (prev + 1 < days.length - 2 ? prev + 1 : prev))
@@ -187,6 +184,7 @@ export function WeekPlanner() {
                     <TaskPanel />
                 </div>
 
+                {/* Header */}
                 <div className="week-planner-header">
                     <button onClick={showPrev} className="arrow-btn" disabled={currentIndex === 0}>
                         ◀
@@ -201,15 +199,21 @@ export function WeekPlanner() {
                     </button>
                 </div>
 
+                {/* Days */}
                 <div className="week-planner">
                     {visibleDays.map((day) => (
-                        <DroppableDay key={day.fullDate} day={day}>
+                        <DroppableDay
+                            key={day.fullDate}
+                            day={day}
+                            className={`day-card ${day.isToday ? "today" : ""} ${day.tasks.length > 0 ? "has-tasks" : ""
+                                }`}
+                        >
                             <h3 className={`day-title ${day.isToday ? "today" : ""}`}>
                                 <span className="day-name">{day.name}</span>
                                 <span className="day-date">{day.short}</span>
                             </h3>
 
-                            {day.tasks && day.tasks.length > 0 ? (
+                            {day.tasks.length > 0 ? (
                                 <ul className="task-list">
                                     {day.tasks
                                         .filter(
