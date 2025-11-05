@@ -26,18 +26,29 @@ export function WeekPlanner() {
         setDays((prev) =>
             prev.map((day) => {
                 if (day.fullDate !== targetDay) return day
-                const alreadyExists = day.tasks.some((t) => t.id === taskData.id)
-                if (alreadyExists) return day
-                return { ...day, tasks: [...day.tasks, taskData] }
+
+                // ✅ Allow multiple copies of same task
+                const duplicatedTask = {
+                    ...taskData,
+                    uniqueId: `${taskData.id}-${Date.now()}-${Math.random()
+                        .toString(36)
+                        .substring(2, 7)}`,
+                }
+
+                return { ...day, tasks: [...day.tasks, duplicatedTask] }
             })
         )
 
-        // 💾 (optional) API insert placeholder — uncomment later:
+        // 💾 (optional: uncomment later for DB insert)
         /*
         fetch(`${API}/addDayTask.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ task_id: taskData.id, day_date: targetDay }),
+            credentials: "include",
+            body: JSON.stringify({
+                task_id: taskData.id,
+                day_date: targetDay,
+            }),
         })
             .then((res) => res.json())
             .then((data) => console.log("✅ DB add:", data))
@@ -183,7 +194,7 @@ export function WeekPlanner() {
                                                 taskState[day.fullDate]?.[t.id] || "pending"
                                             return (
                                                 <li
-                                                    key={`${day.fullDate}-${t.id}`}
+                                                    key={t.uniqueId || `${day.fullDate}-${t.id}`}
                                                     className={`task-item ${state === "approved" ? "approved" : ""
                                                         }`}
                                                 >
