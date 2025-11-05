@@ -8,51 +8,48 @@ include('cors.php');
 include_once "../db_connect.php";
 
 $user_id = $_GET['user_id'] ?? null;
+$daysParam = $_GET['days'] ?? null;
 
-if (!$user_id) {
-  echo json_encode(["success" => false, "error" => "Missing user_id"]);
+if (!$user_id || !$daysParam) {
+  echo json_encode(["success" => false, "error" => "Missing user_id or days"]);
   exit;
 }
 
-// Optionally, allow filtering by specific days (e.g., visible 3 days)
-$days = $_GET['days'] ?? null;
-$daysArray = $days ? explode(',', $days) : [];
+$days = explode(',', $daysParam);
+$placeholders = implode(',', array_fill(0, count($days), '?'));
 
-if (!empty($daysArray)) {
-  $placeholders = implode(',', array_fill(0, count($daysArray), '?'));
-  $types = str_repeat('s', count($daysArray)) . 'i'; // 's' for day_date, 'i' for user_id
-  $query = "SELECT dt.day_date, t.id AS task_id, t.title, t.frequency, dt.status
-              FROM day_tasks dt
-              JOIN tasks t ON t.id = dt.task_id
-              WHERE dt.user_id = ? AND dt.day_date IN ($placeholders)
-              ORDER BY dt.day_date";
-  $stmt = $conn->prepare($query);
+$types = str_repeat('s', count($days)); // all strings
+$query = "
+    SELECT dt.task_id, dt.day_date, t.title, t.frequency
+    FROM day_tasks dt
+    JOIN tasks t ON dt.task_id = t.id
+    WHERE dt.user_id = ?
+      AND dt.day_date IN ($placeholders)
+    ORDER BY dt.day_date ASC
+";
 
-  // bind dynamic params
-  $params = array_merge([$user_id], $daysArray);
-  $ref = [];
-  foreach ($params as $k => $v) $ref[$k] = &$params[$k];
-  array_unshift($ref, $types);
-  call_user_func_array([$stmt, 'bind_param'], $ref);
-
-  $stmt->execute();
-  $res = $stmt->get_result();
-} else {
-  $stmt = $conn->prepare("SELECT dt.day_date, t.id AS task_id, t.title, t.frequency, dt.status
-                            FROM day_tasks dt
-                            JOIN tasks t ON t.id = dt.task_id
-                            WHERE dt.user_id = ?
-                            ORDER BY dt.day_date");
-  $stmt->bind_param("i", $user_id);
-  $stmt->execute();
-  $res = $stmt->get_result();
+$stmt = $conn->prepare($query);
+if (!$stmt) {
+  echo json_encode(["success" => false, "error" => $conn->error]);
+  exit;
 }
 
-$tasksByDay = [];
-while ($row = $res->fetch_assoc()) {
-  $tasksByDay[$row['day_date']][] = $row;
+$params = array_merge([$types], $days);
+$stmt->bind_param("i" . $types, $user_id, ...$days);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$grouped = [];
+while ($row = $result->fetch_assoc()) {
+  $day = $row['day_date'];
+  if (!isset($grouped[$day])) $grouped[$day] = [];
+  $grouped[$day][] = [
+    "task_id" => (int)$row["task_id"],
+    "title" => $row["title"],
+    "frequency" => $row["frequency"]
+  ];
 }
 
-echo json_encode(["success" => true, "tasks" => $tasksByDay]);
+echo json_encode(["success" => true, "tasks" => $grouped]);
 $stmt->close();
 $conn->close();
