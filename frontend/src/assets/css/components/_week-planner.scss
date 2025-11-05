@@ -243,19 +243,16 @@
   }
 }
 
-
 .day-over {
   background: #dbeafe !important;
   transition: background 0.2s ease;
 }
 
-
-
 /* Highlight today's card */
 .day-column.today,
 .day-title.today {
-  border: 2px solid #10b981;      // vivid green border
-  background: #ecfdf5;            // light green
+  border: 2px solid #10b981; // vivid green border
+  background: #ecfdf5; // light green
   font-weight: 800;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
   transform: scale(1.02);
@@ -264,4 +261,19 @@
     background: #d1fae5;
     transform: translateY(-2px);
   }
+}
+
+/* 🧊 Prevent ghost snap-back after drop */
+.draggable {
+  transition: none !important; /* disables transform animation */
+}
+
+[data-dnd-kit-dragging="true"] {
+  z-index: 9999 !important;
+  position: relative !important;
+  pointer-events: none; /* avoids flicker when dropping */
+}
+
+[data-dnd-kit-dragging="true"] * {
+  transition: none !important;
 }
