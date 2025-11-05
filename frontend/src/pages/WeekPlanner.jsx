@@ -97,6 +97,46 @@ export function WeekPlanner() {
             .catch(() => setSignupDate(new Date()))
     }, [])
 
+    useEffect(() => {
+        const syncDaily = async () => {
+            try {
+                const res = await fetch(`${API}/syncDailyTasks.php`, { credentials: "include" })
+                const data = await res.json()
+                console.log("🔄 Daily tasks sync:", data)
+            } catch (err) {
+                console.error("❌ Failed to sync daily tasks:", err)
+            }
+        }
+
+        // Run only when visibleDays change (today + next 2)
+        if (days.length > 0) {
+            syncDaily()
+        }
+    }, [days])
+
+    useEffect(() => {
+        const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
+        if (!loggedUser?.id) return
+
+        const syncDaily = async () => {
+            try {
+                const res = await fetch(`${API}/syncDailyTasks.php`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: loggedUser.id }),
+                    credentials: "include",
+                })
+                const data = await res.json()
+                console.log("🔄 Daily tasks sync:", data)
+            } catch (err) {
+                console.error("❌ Failed to sync daily tasks:", err)
+            }
+        }
+
+        syncDaily()
+    }, [])
+
+
     // ✅ Build days (with empty tasks)
     useEffect(() => {
         if (!signupDate) return
