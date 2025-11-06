@@ -115,7 +115,7 @@ export function WeekPlanner() {
         }
 
         const formatted = allDays.map((date) => ({
-            fullDate: date.toISOString().split("T")[0],
+            fullDate: date.toLocaleDateString("en-CA"), // gives YYYY-MM-DD in local timezone
             name: date.toLocaleDateString("en-US", { weekday: "long" }),
             short: date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" }),
             isToday: date.toDateString() === today.toDateString(),
@@ -133,7 +133,7 @@ export function WeekPlanner() {
         if (!loggedUser?.id || days.length === 0) return
 
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
-        const daysParam = visibleDays.map((d) => d.fullDate).join(",")
+        const daysParam = visibleDays.map((d) => d.fullDate).join(",")        
 
         const syncAndLoad = async () => {
             try {
