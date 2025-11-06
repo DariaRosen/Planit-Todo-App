@@ -115,7 +115,7 @@ export function WeekPlanner() {
         }
 
         const formatted = allDays.map((date) => ({
-            fullDate: date.toLocaleDateString("en-CA"), // gives YYYY-MM-DD in local timezone
+            fullDate: date.toLocaleDateString("en-CA"),
             name: date.toLocaleDateString("en-US", { weekday: "long" }),
             short: date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" }),
             isToday: date.toDateString() === today.toDateString(),
@@ -133,7 +133,7 @@ export function WeekPlanner() {
         if (!loggedUser?.id || days.length === 0) return
 
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
-        const daysParam = visibleDays.map((d) => d.fullDate).join(",")        
+        const daysParam = visibleDays.map((d) => d.fullDate).join(",")
 
         const syncAndLoad = async () => {
             try {
@@ -226,24 +226,21 @@ export function WeekPlanner() {
                                             const bId = b.id || b.task_id
                                             const aState = taskState[day.fullDate]?.[aId]
                                             const bState = taskState[day.fullDate]?.[bId]
-                                            if (aState === "approved" && bState !== "approved")
-                                                return 1
-                                            if (aState !== "approved" && bState === "approved")
-                                                return -1
-                                            return 0
+
+                                            // ✅ Approved tasks go last
+                                            if (aState === "approved" && bState !== "approved") return 1
+                                            if (aState !== "approved" && bState === "approved") return -1
+
+                                            // ✅ Alphabetical sort (A → Z)
+                                            return a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
                                         })
                                         .map((t) => {
                                             const taskId = t.id || t.task_id
-                                            const state =
-                                                taskState[day.fullDate]?.[taskId] || "pending"
+                                            const state = taskState[day.fullDate]?.[taskId] || "pending"
                                             return (
                                                 <li
-                                                    key={
-                                                        t.uniqueId ||
-                                                        `${day.fullDate}-${taskId}`
-                                                    }
-                                                    className={`task-item ${state === "approved" ? "approved" : ""
-                                                        }`}
+                                                    key={t.uniqueId || `${day.fullDate}-${taskId}`}
+                                                    className={`task-item ${state === "approved" ? "approved" : ""}`}
                                                 >
                                                     <div className="task-left">
                                                         <TaskIcon title={t.title} />
@@ -254,9 +251,7 @@ export function WeekPlanner() {
                                                         {state === "approved" ? (
                                                             <button
                                                                 className="revert-btn"
-                                                                onClick={() =>
-                                                                    handleApprove(day, taskId)
-                                                                }
+                                                                onClick={() => handleApprove(day, taskId)}
                                                             >
                                                                 <RotateCcw size={18} />
                                                             </button>
@@ -264,17 +259,13 @@ export function WeekPlanner() {
                                                             <>
                                                                 <button
                                                                     className="approve-btn"
-                                                                    onClick={() =>
-                                                                        handleApprove(day, taskId)
-                                                                    }
+                                                                    onClick={() => handleApprove(day, taskId)}
                                                                 >
                                                                     <Check size={18} />
                                                                 </button>
                                                                 <button
                                                                     className="remove-btn"
-                                                                    onClick={() =>
-                                                                        handleRemove(day, taskId)
-                                                                    }
+                                                                    onClick={() => handleRemove(day, taskId)}
                                                                 >
                                                                     <X size={18} />
                                                                 </button>
