@@ -30,9 +30,14 @@ function DraggableTask({ task }) {
 export function TaskPanel() {
     const API = "http://localhost/Planit-Todo-App/backend/api"
     const [tasks, setTasks] = useState([])
+    const [includeDaily, setIncludeDaily] = useState(false)
 
+    // Fetch both weekly/as_needed and optionally daily tasks
     useEffect(() => {
-        const frequencies = "weekly,as_needed"
+        const frequencies = includeDaily
+            ? "daily,weekly,as_needed"
+            : "weekly,as_needed"
+
         fetch(`${API}/getTasksByFrequency.php?frequencies=${frequencies}`, {
             credentials: "include",
         })
@@ -45,11 +50,24 @@ export function TaskPanel() {
                 }
             })
             .catch((err) => console.error("❌ Error loading tasks:", err))
-    }, [])
+    }, [includeDaily])
 
     return (
         <div className="task-panel">
-            <h3 className="task-panel-title">Choose Tasks:</h3>
+            <div className="task-panel-header">
+                <h3 className="task-panel-title">Choose Tasks:</h3>
+
+                {/* ✅ Checkbox toggle */}
+                <label className="show-daily-toggle">
+                    <input
+                        type="checkbox"
+                        checked={includeDaily}
+                        onChange={(e) => setIncludeDaily(e.target.checked)}
+                    />
+                    Show daily tasks
+                </label>
+            </div>
+
             <div className="task-blocks">
                 {tasks.length > 0 ? (
                     tasks.map((task) => <DraggableTask key={task.id} task={task} />)
