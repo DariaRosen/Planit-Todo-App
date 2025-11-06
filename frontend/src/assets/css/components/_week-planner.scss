@@ -1,3 +1,6 @@
+/* -----------------------------
+   WEEK PLANNER CONTAINER
+----------------------------- */
 .week-planner-container {
   display: flex;
   flex-direction: column;
@@ -5,6 +8,20 @@
   justify-self: center;
   gap: 1.5rem;
   padding: 1rem;
+
+  /* 🌟 Smooth fade-in animation for the whole view */
+  animation: fadeIn 0.6s ease forwards;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   .week-planner-header {
     display: flex;
@@ -30,8 +47,8 @@
       transition: background 0.2s ease;
 
       display: flex;
-      align-items: center; // vertically center
-      justify-content: center; // horizontally center
+      align-items: center;
+      justify-content: center;
 
       &:hover:not(:disabled) {
         background: #299764;
@@ -68,6 +85,19 @@
     padding: 1rem;
     box-sizing: border-box;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* ✨ Fade-in for each day column (staggered effect) */
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeInUp 0.6s ease forwards;
+    animation-delay: calc(var(--i, 0) * 0.15s);
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
     &:hover {
       transform: translateY(-2px);
@@ -156,12 +186,12 @@
     }
 
     .task-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
 
       .task-item {
         background: #f1f5f9;
@@ -170,7 +200,6 @@
         font-size: 0.9rem;
         color: #1e293b;
         border: 1px solid #e2e8f0;
-        text-align: left; // ← aligned task names to the left
         transition: background 0.2s ease;
 
         &:hover {
@@ -190,29 +219,32 @@
   /* ---------- Responsive ---------- */
   @media (max-width: 1200px) {
     .day-column {
-      flex: 1 1 calc(25% - 1rem); // still 4 per row
+      flex: 1 1 calc(25% - 1rem);
     }
   }
 
   @media (max-width: 800px) {
     .day-column {
-      flex: 1 1 calc(33.33% - 1rem); // 3 per row
+      flex: 1 1 calc(33.33% - 1rem);
     }
   }
 
   @media (max-width: 600px) {
     .day-column {
-      flex: 1 1 calc(50% - 1rem); // 2 per row
+      flex: 1 1 calc(50% - 1rem);
     }
   }
 
   @media (max-width: 400px) {
     .day-column {
-      flex: 1 1 100%; // 1 per row on very small screens
+      flex: 1 1 100%;
     }
   }
 }
 
+/* -----------------------------
+   TASK ITEM AND ICONS
+----------------------------- */
 .task-left {
   display: flex;
   align-items: center;
@@ -243,15 +275,16 @@
   }
 }
 
+/* Highlight droppable hover */
 .day-over {
   background: #dbeafe !important;
   transition: background 0.2s ease;
 }
 
-/* Highlight today's card */
+/* Highlight today's column */
 .day-column.today {
-  border: 2px solid #10b981; // vivid green border
-  background: #ecfdf5; // light green
+  border: 2px solid #10b981;
+  background: #ecfdf5;
   font-weight: 800;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
   transform: scale(1.02);
@@ -262,21 +295,22 @@
   }
 }
 
-/* 🧊 Prevent ghost snap-back after drop */
+/* 🧊 Disable snap-back after drop */
 .draggable {
-  transition: none !important; /* disables transform animation */
+  transition: none !important;
 }
 
 [data-dnd-kit-dragging="true"] {
   z-index: 9999 !important;
   position: relative !important;
-  pointer-events: none; /* avoids flicker when dropping */
+  pointer-events: none;
 }
 
 [data-dnd-kit-dragging="true"] * {
   transition: none !important;
 }
 
+/* Mark days with tasks */
 .has-tasks {
   border: 2px solid #3b82f6;
   box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);

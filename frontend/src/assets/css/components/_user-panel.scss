@@ -1,159 +1,110 @@
 .user-panel {
   background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  padding: 24px;
-  max-width: 400px;
-  margin: 0 auto;
-  font-family: system-ui, sans-serif;
-}
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.5rem;
+  max-width: 420px;
+  margin: 40px auto;
+  font-family: "Inter", system-ui, sans-serif;
+  text-align: center;
+  transition: transform 0.2s ease;
 
-.panel-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+  &:hover {
+    transform: translateY(-2px);
+  }
 
-.add-user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
 
-  input[type="text"],
-  input[type="email"],
-  input[type="url"] {
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+  .user-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  input {
+    width: 100%; // full width inside the form
+    max-width: 100%; // ensure no overflow
+    padding: 10px 12px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
     font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background-color: #fafafa;
+    box-sizing: border-box; // makes width include padding
 
     &:focus {
       outline: none;
-      border-color: #4e89f3;
+      border-color: #5cb88e;
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(92, 184, 142, 0.15);
     }
   }
 
-  .checkbox {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.9rem;
-  }
-
-  .add-btn {
+  button {
+    width: 100%; // same width as input
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 8px;
-    border: none;
-    border-radius: 6px;
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
     font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.25s ease, transform 0.15s ease;
 
     &:hover {
-      background-color: #43a047;
+      transform: translateY(-1px);
+    }
+  }
+
+  .edit-btn {
+    background-color: #5cb88e;
+    color: white;
+    margin-top: 0.3rem;
+
+    &:hover {
+      background-color: #4fa97e;
+    }
+  }
+
+  .logout-btn {
+    background-color: #f0f0f0;
+    color: #555;
+    margin-top: 0.6rem;
+
+    &:hover {
+      background-color: #e0e0e0;
     }
 
     svg {
-      stroke-width: 2px;
+      stroke: #777;
     }
   }
 }
 
-.user-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  .no-users {
-    font-size: 0.9rem;
-    color: #777;
-    text-align: center;
-  }
+.user-panel {
+  animation: fadeIn 0.5s ease forwards;
 }
 
-.user-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #f3f3f3;
-    }
-
-    .details {
-      .name {
-        font-weight: 500;
-        margin: 0;
-      }
-
-      .meta {
-        font-size: 0.8rem;
-        color: #888;
-
-        .status {
-          &.logged-in {
-            color: #4caf50;
-            font-weight: 500;
-          }
-          &.logged-out {
-            color: #999;
-          }
-        }
-      }
-    }
-  }
-
-  .login-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &.login {
-      background-color: #2196f3;
-
-      &:hover {
-        background-color: #1976d2;
-      }
-    }
-
-    &.logout {
-      background-color: #f44336;
-
-      &:hover {
-        background-color: #d32f2f;
-      }
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
