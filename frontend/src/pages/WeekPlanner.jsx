@@ -14,7 +14,8 @@ export function WeekPlanner() {
     const [taskState, setTaskState] = useState({})
 
     // ✅ DRAG END LOGIC
-    const handleDragEnd = (event) => {
+    // ✅ DRAG END LOGIC
+    const handleDragEnd = async (event) => {
         const { active, over } = event
         if (!over) return
         const taskData = active.data?.current
@@ -38,19 +39,36 @@ export function WeekPlanner() {
         )
 
         // 💾 Save to DB
-        fetch(`${API}/addDayTask.php`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-                task_id: taskData.id,
-                day_date: targetDay,
-            }),
-        })
-            .then((res) => res.json())
-            .then((data) => console.log("✅ DB add:", data))
-            .catch((err) => console.error("❌ Add failed:", err))
+        try {
+            const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
+            if (!loggedUser?.id) {
+                console.error("❌ No logged-in user found")
+                return
+            }
+
+            const res = await fetch(`${API}/addDayTask.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    user_id: loggedUser.id,
+                    task_id: taskData.id,
+                    day_date: targetDay,
+                    title: taskData.title,
+                }),
+            })
+
+            const data = await res.json()
+            if (data.success) {
+                console.log("✅ Task saved to DB:", data)
+            } else {
+                console.error("❌ DB insertion failed:", data)
+            }
+        } catch (err) {
+            console.error("❌ Error adding task to DB:", err)
+        }
     }
+
 
     // ✅ APPROVE / REMOVE / REVERT logic
     const handleApprove = (day, taskId) => {
