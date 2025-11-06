@@ -1,4 +1,3 @@
-// ✅ WeekPlanner.jsx
 import { useState, useEffect } from "react"
 import { DndContext } from "@dnd-kit/core"
 import { TaskPanel } from "../components/TaskPanel"
@@ -65,7 +64,7 @@ export function WeekPlanner() {
         }
     }
 
-    // ✅ APPROVE / REMOVE / REVERT logic
+    // ✅ APPROVE / REVERT logic
     const handleApprove = (day, taskId) => {
         setTaskState((prev) => ({
             ...prev,
@@ -79,7 +78,8 @@ export function WeekPlanner() {
         }))
     }
 
-    const handleRemove = (day, taskId) => {
+    // ✅ REMOVE TASK — visually and from DB
+    const handleRemove = async (day, taskId) => {
         setTaskState((prev) => ({
             ...prev,
             [day.fullDate]: {
@@ -87,6 +87,55 @@ export function WeekPlanner() {
                 [taskId]: "removed",
             },
         }))
+
+        try {
+            const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
+            if (!loggedUser?.id) {
+                console.error("❌ No logged-in user found")
+                return
+            }
+
+            // ✅ find the exact DB record id for this task
+            const dayTask = day.tasks.find((t) => (t.id || t.task_id) === taskId)
+            if (!dayTask?.id) {
+                console.error("❌ Missing DB id for this task")
+                return
+            }
+
+            console.log("🗑️ Removing task from DB:", {
+                user_id: loggedUser.id,
+                day_task_id: dayTask.id,
+            })
+
+            // 💾 Delete from DB
+            const res = await fetch(`${API}/removeDayTask.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    user_id: loggedUser.id,
+                    day_task_id: dayTask.id,
+                }),
+            })
+
+            const data = await res.json()
+            if (data.success) {
+                console.log("🗑️ Task removed from DB:", data)
+
+                // ✅ Remove visually from UI immediately
+                setDays((prev) =>
+                    prev.map((d) =>
+                        d.fullDate === day.fullDate
+                            ? { ...d, tasks: d.tasks.filter((t) => t.id !== dayTask.id) }
+                            : d
+                    )
+                )
+            } else {
+                console.error("❌ Failed to remove task from DB:", data)
+            }
+        } catch (err) {
+            console.error("❌ Error removing task:", err)
+        }
     }
 
     // ✅ Load signup date
