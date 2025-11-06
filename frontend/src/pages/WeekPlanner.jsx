@@ -22,28 +22,13 @@ export function WeekPlanner() {
         const targetDay = over.id.replace("day-", "")
         console.log("🗓 Dropped task", taskData.title, "into", targetDay)
 
-        // Add task visually
-        setDays((prev) =>
-            prev.map((day) => {
-                if (day.fullDate !== targetDay) return day
-                const duplicatedTask = {
-                    ...taskData,
-                    uniqueId: `${taskData.id}-${Date.now()}-${Math.random()
-                        .toString(36)
-                        .substring(2, 7)}`,
-                }
-                return { ...day, tasks: [...day.tasks, duplicatedTask] }
-            })
-        )
+        const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
+        if (!loggedUser?.id) {
+            console.error("❌ No logged-in user found")
+            return
+        }
 
-        // 💾 Save to DB
         try {
-            const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
-            if (!loggedUser?.id) {
-                console.error("❌ No logged-in user found")
-                return
-            }
-
             const res = await fetch(`${API}/addDayTask.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -57,26 +42,73 @@ export function WeekPlanner() {
             })
 
             const data = await res.json()
-            if (data.success) console.log("✅ Task saved to DB:", data)
-            else console.error("❌ DB insertion failed:", data)
+            if (data.success) {
+                console.log("✅ Task saved to DB:", data)
+
+                // ✅ Add task visually with returned DB id
+                setDays((prev) =>
+                    prev.map((day) => {
+                        if (day.fullDate !== targetDay) return day
+                        const duplicatedTask = {
+                            ...taskData,
+                            id: data.id, // ← Save DB day_tasks.id here
+                            uniqueId: `${taskData.id}-${Date.now()}-${Math.random()
+                                .toString(36)
+                                .substring(2, 7)}`,
+                        }
+                        return { ...day, tasks: [...day.tasks, duplicatedTask] }
+                    })
+                )
+            } else {
+                console.error("❌ DB insertion failed:", data)
+            }
         } catch (err) {
             console.error("❌ Error adding task to DB:", err)
         }
     }
 
+
     // ✅ APPROVE / REVERT logic
-    const handleApprove = (day, taskId) => {
+    // ✅ APPROVE / REVERT logic + save to DB
+    const handleApprove = async (day, dayTaskId) => {
+        const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
+        if (!loggedUser?.id) return console.error("❌ No logged-in user found")
+
+        const currentState = taskState[day.fullDate]?.[dayTaskId] || "pending"
+        const newStatus = currentState === "approved" ? "pending" : "approved"
+
+        // ✅ Update UI
         setTaskState((prev) => ({
             ...prev,
-            [day.fullDate]: {
-                ...prev[day.fullDate],
-                [taskId]:
-                    prev[day.fullDate]?.[taskId] === "approved"
-                        ? "pending"
-                        : "approved",
-            },
+            [day.fullDate]: { ...prev[day.fullDate], [dayTaskId]: newStatus },
         }))
+
+        try {
+            console.log("🟢 Updating DB for:", {
+                user_id: loggedUser.id,
+                day_task_id: dayTaskId,
+                status: newStatus,
+            })
+
+            const res = await fetch(`${API}/updateDayTaskStatus.php`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    user_id: loggedUser.id,
+                    day_task_id: dayTaskId,
+                    status: newStatus,
+                }),
+            })
+
+            const data = await res.json()
+            if (data.success) console.log("✅ Status updated:", data)
+            else console.error("❌ Failed to update:", data)
+        } catch (err) {
+            console.error("❌ Error updating:", err)
+        }
     }
+
 
     // ✅ REMOVE TASK — visually and from DB
     const handleRemove = async (day, taskId) => {
