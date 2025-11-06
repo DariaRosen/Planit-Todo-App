@@ -6,6 +6,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 include('cors.php');
 include_once "../db_connect.php";
+date_default_timezone_set('Asia/Jerusalem');
 
 $input = json_decode(file_get_contents("php://input"), true);
 $user_id = $input['user_id'] ?? null;
@@ -35,7 +36,7 @@ if (empty($dailyTaskIds)) {
 // ----------------------
 $days = [];
 for ($i = 0; $i < 3; $i++) {
-    $d = new DateTime();
+    $d = new DateTime('now', new DateTimeZone('Asia/Jerusalem'));
     $d->modify("+$i day");
     $days[] = $d->format('Y-m-d');
 }
