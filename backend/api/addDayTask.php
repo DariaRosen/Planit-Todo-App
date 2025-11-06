@@ -1,9 +1,15 @@
 <?php
+// 🪵 Enable full PHP error visibility (for local debugging)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // -------------------------------------
 // ✅ Handle CORS & preflight requests
 // -------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("Access-Control-Allow-Origin: http://localhost:5173");
+    header("Access-Control-Allow-Credentials: true");
     header("Access-Control-Allow-Headers: Content-Type");
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     http_response_code(200);
@@ -11,45 +17,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
 
 // -------------------------------------
-// ✅ Include your DB + CORS files
+// ✅ Include DB connection
 // -------------------------------------
 include('cors.php');
 include_once "../db_connect.php";
 
+// 🪵 Start debug array
+$debug = [];
+
 // -------------------------------------
 // ✅ Parse input JSON
 // -------------------------------------
-$data = json_decode(file_get_contents("php://input"), true);
+$json = file_get_contents("php://input");
+$debug['raw_input'] = $json;
+
+$data = json_decode($json, true);
 
 if (!$data) {
-    echo json_encode(["success" => false, "error" => "Invalid JSON input"]);
+    echo json_encode([
+        "success" => false,
+        "error" => "Invalid JSON input",
+        "debug" => $debug
+    ]);
     exit;
 }
 
+$user_id = $data['user_id'] ?? null;
 $task_id = $data['task_id'] ?? null;
 $day_date = $data['day_date'] ?? null;
+$title = $data['title'] ?? null;
 
-if (!$task_id || !$day_date) {
-    echo json_encode(["success" => false, "error" => "Missing task_id or day_date"]);
+$debug['parsed_data'] = $data;
+
+if (!$user_id || !$task_id || !$day_date) {
+    echo json_encode([
+        "success" => false,
+        "error" => "Missing required parameters",
+        "debug" => $debug
+    ]);
     exit;
 }
 
 // -------------------------------------
-// ✅ Insert into database
+// ✅ Check database connection
 // -------------------------------------
-$stmt = $conn->prepare("INSERT INTO day_tasks (task_id, day_date) VALUES (?, ?)");
-$stmt->bind_param("is", $task_id, $day_date);
-
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "id" => $stmt->insert_id]);
-} else {
-    echo json_encode(["success" => false, "error" => $stmt->error]);
+if (!$conn) {
+    echo json_encode([
+        "success" => false,
+        "error" => "No DB connection",
+        "debug" => $debug
+    ]);
+    exit;
 }
 
-$stmt->close();
-$conn->close();
+$debug['db_status'] = 'connected';
+
+// -------------------------------------
+// ✅ Attempt insertion
+// -------------------------------------
+try {
+    $stmt = $conn->prepare("INSERT INTO day_tasks (user_id, task_id, day_date, title) VALUES (?, ?, ?, ?)");
+    if (!$stmt) {
+        echo json_encode([
+            "success" => false,
+            "error" => "Prepare failed: " . $conn->error,
+            "debug" => $debug
+        ]);
+        exit;
+    }
+
+    $debug['query'] = "INSERT INTO day_tasks (user_id, task_id, day_date, title) VALUES ($user_id, $task_id, '$day_date', '$title')";
+
+    $stmt->bind_param("iiss", $user_id, $task_id, $day_date, $title);
+    $executed = $stmt->execute();
+
+    if ($executed) {
+        echo json_encode([
+            "success" => true,
+            "id" => $stmt->insert_id,
+            "debug" => $debug
+        ]);
+    } else {
+        echo json_encode([
+            "success" => false,
+            "error" => $stmt->error,
+            "debug" => $debug
+        ]);
+    }
+
+    $stmt->close();
+    $conn->close();
+} catch (Exception $e) {
+    echo json_encode([
+        "success" => false,
+        "error" => "Exception: " . $e->getMessage(),
+        "debug" => $debug
+    ]);
+}
+exit;
