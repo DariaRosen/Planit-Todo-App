@@ -11,7 +11,7 @@ export function Header({ user, onLogout }) {
     return (
         <header className="app-header">
             <div className="header-container">
-                <h1 className="logo">🪐 Planit</h1>
+                <h1 className="logo"><img src="/256px-Planet.svg.png" alt="Planit" /> Planit</h1>
 
                 <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
                     <NavLink to="/" className="nav-item">
