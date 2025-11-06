@@ -86,7 +86,7 @@ export default function App() {
   if (isLoading) {
     return (
       <div className="loading-screen">
-        <h2>🪐 Planit</h2>
+        <h2><img src="/256px-Planet.svg.png" alt="Planit" /> Planit</h2>
         <p>Loading your profile...</p>
       </div>
     )
