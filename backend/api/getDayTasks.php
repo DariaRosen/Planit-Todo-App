@@ -22,14 +22,15 @@ $types = str_repeat('s', count($days)); // all strings
 
 $query = "
     SELECT 
-        dt.id AS day_task_id,
-        dt.task_id,
-        dt.day_date,
-        COALESCE(dt.title, t.title) AS title,
-        COALESCE(t.frequency, 'custom') AS frequency,
-        dt.status
+        dt.id AS day_task_id, 
+        dt.task_id, 
+        dt.user_id, 
+        dt.day_date, 
+        dt.status, 
+        t.title, 
+        t.frequency
     FROM day_tasks dt
-    LEFT JOIN tasks t ON dt.task_id = t.id
+    JOIN tasks t ON dt.task_id = t.id
     WHERE dt.user_id = ?
       AND dt.day_date IN ($placeholders)
     ORDER BY dt.day_date ASC
@@ -49,6 +50,7 @@ $grouped = [];
 while ($row = $result->fetch_assoc()) {
   $day = $row['day_date'];
   if (!isset($grouped[$day])) $grouped[$day] = [];
+
   $grouped[$day][] = [
     "id" => (int)$row["day_task_id"],
     "task_id" => (int)$row["task_id"],
