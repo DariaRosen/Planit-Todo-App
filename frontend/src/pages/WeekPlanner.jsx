@@ -13,8 +13,7 @@ export function WeekPlanner() {
     const [signupDate, setSignupDate] = useState(null)
     const [taskState, setTaskState] = useState({})
 
-    // ✅ DRAG END LOGIC
-    // ✅ DRAG END LOGIC
+    // ✅ DRAG END LOGIC — add task visually + save to DB
     const handleDragEnd = async (event) => {
         const { active, over } = event
         if (!over) return
@@ -59,16 +58,12 @@ export function WeekPlanner() {
             })
 
             const data = await res.json()
-            if (data.success) {
-                console.log("✅ Task saved to DB:", data)
-            } else {
-                console.error("❌ DB insertion failed:", data)
-            }
+            if (data.success) console.log("✅ Task saved to DB:", data)
+            else console.error("❌ DB insertion failed:", data)
         } catch (err) {
             console.error("❌ Error adding task to DB:", err)
         }
     }
-
 
     // ✅ APPROVE / REMOVE / REVERT logic
     const handleApprove = (day, taskId) => {
@@ -111,7 +106,7 @@ export function WeekPlanner() {
             .catch(() => setSignupDate(new Date()))
     }, [])
 
-    // ✅ Build full day list
+    // ✅ Build full day list (past + future)
     useEffect(() => {
         if (!signupDate) return
 
@@ -145,7 +140,7 @@ export function WeekPlanner() {
         if (todayIndex !== -1) setCurrentIndex(todayIndex)
     }, [signupDate])
 
-    // ✅ Sync daily tasks → then load tasks
+    // ✅ Load existing tasks first, then sync daily tasks only if missing
     useEffect(() => {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?.id || days.length === 0) return
@@ -153,44 +148,63 @@ export function WeekPlanner() {
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
         const daysParam = visibleDays.map((d) => d.fullDate).join(",")
 
-        const syncAndLoad = async () => {
+        const loadTasks = async () => {
             try {
-                console.log("🟢 Syncing for user:", loggedUser.id)
+                console.log("📦 Checking existing tasks for user:", loggedUser.id)
 
-                // Step 1: sync daily tasks
-                const syncRes = await fetch(`${API}/syncDailyTasks.php`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user_id: loggedUser.id }),
-                    credentials: "include",
-                })
-                const syncData = await syncRes.json()
-                console.log("🔄 Sync result:", syncData)
-
-                // Step 2: load tasks from DB
-                const loadRes = await fetch(
+                // Step 1️⃣: Load existing tasks first
+                const res = await fetch(
                     `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${daysParam}`
                 )
-                const loadData = await loadRes.json()
-                console.log("📅 Loaded tasks:", loadData)
+                const data = await res.json()
+                console.log("📅 Existing tasks:", data)
 
-                if (loadData.success && loadData.tasks) {
-                    setDays((prev) =>
-                        prev.map((day) => ({
-                            ...day,
-                            tasks: loadData.tasks[day.fullDate] || [],
-                        }))
+                let tasks = data.tasks || {}
+                let hasMissing = false
+
+                // Step 2️⃣: Check if any visible day has no tasks
+                visibleDays.forEach((d) => {
+                    if (!tasks[d.fullDate] || tasks[d.fullDate].length === 0)
+                        hasMissing = true
+                })
+
+                // Step 3️⃣: If missing → sync daily tasks
+                if (hasMissing) {
+                    console.log("🔄 Missing daily tasks found, syncing...")
+                    const syncRes = await fetch(`${API}/syncDailyTasks.php`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ user_id: loggedUser.id }),
+                        credentials: "include",
+                    })
+                    const syncData = await syncRes.json()
+                    console.log("✅ Sync completed:", syncData)
+
+                    // Step 4️⃣: Reload all tasks after sync
+                    const reload = await fetch(
+                        `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${daysParam}`
                     )
+                    const reloadData = await reload.json()
+                    tasks = reloadData.tasks || {}
+                    console.log("📦 Reloaded tasks:", reloadData)
                 }
+
+                // Step 5️⃣: Update UI
+                setDays((prev) =>
+                    prev.map((day) => ({
+                        ...day,
+                        tasks: tasks[day.fullDate] || [],
+                    }))
+                )
             } catch (err) {
-                console.error("❌ Error syncing/loading tasks:", err)
+                console.error("❌ Error loading/syncing tasks:", err)
             }
         }
 
-        syncAndLoad()
+        loadTasks()
     }, [currentIndex, days.length])
 
-    // ✅ Pagination
+    // ✅ Pagination logic
     const showNext = () => setCurrentIndex((prev) => (prev + 1 < days.length - 2 ? prev + 1 : prev))
     const showPrev = () => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0))
     const visibleDays = days.slice(currentIndex, currentIndex + 3)
@@ -198,11 +212,12 @@ export function WeekPlanner() {
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="week-planner-container">
+                {/* Sidebar with draggable tasks */}
                 <div className="task-panel-wrapper">
                     <TaskPanel />
                 </div>
 
-                {/* Header */}
+                {/* Header navigation */}
                 <div className="week-planner-header">
                     <button onClick={showPrev} className="arrow-btn" disabled={currentIndex === 0}>
                         ◀
@@ -217,14 +232,13 @@ export function WeekPlanner() {
                     </button>
                 </div>
 
-                {/* Days */}
+                {/* Days display */}
                 <div className="week-planner">
                     {visibleDays.map((day) => (
                         <DroppableDay
                             key={day.fullDate}
                             day={day}
-                            className={`day-card ${day.isToday ? "today" : ""} ${day.tasks.length > 0 ? "has-tasks" : ""
-                                }`}
+                            className={`day-card ${day.isToday ? "today" : ""} ${day.tasks.length > 0 ? "has-tasks" : ""}`}
                         >
                             <h3 className={`day-title ${day.isToday ? "today" : ""}`}>
                                 <span className="day-name">{day.name}</span>
@@ -236,8 +250,7 @@ export function WeekPlanner() {
                                     {day.tasks
                                         .filter(
                                             (t) =>
-                                                taskState[day.fullDate]?.[t.id || t.task_id] !==
-                                                "removed"
+                                                taskState[day.fullDate]?.[t.id || t.task_id] !== "removed"
                                         )
                                         .sort((a, b) => {
                                             const aId = a.id || a.task_id
@@ -245,11 +258,11 @@ export function WeekPlanner() {
                                             const aState = taskState[day.fullDate]?.[aId]
                                             const bState = taskState[day.fullDate]?.[bId]
 
-                                            // ✅ Approved tasks go last
+                                            // Approved tasks last
                                             if (aState === "approved" && bState !== "approved") return 1
                                             if (aState !== "approved" && bState === "approved") return -1
 
-                                            // ✅ Alphabetical sort (A → Z)
+                                            // Alphabetical A→Z
                                             return a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
                                         })
                                         .map((t) => {
