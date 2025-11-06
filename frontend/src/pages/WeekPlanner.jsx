@@ -233,7 +233,7 @@ export function WeekPlanner() {
             try {
                 console.log("📦 Checking existing tasks for user:", loggedUser.id)
 
-                // Step 1️⃣: Load existing tasks first
+                // Step 1️⃣: Load existing tasks
                 const res = await fetch(
                     `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${daysParam}`
                 )
@@ -243,13 +243,12 @@ export function WeekPlanner() {
                 let tasks = data.tasks || {}
                 let hasMissing = false
 
-                // Step 2️⃣: Check if any visible day has no tasks
                 visibleDays.forEach((d) => {
                     if (!tasks[d.fullDate] || tasks[d.fullDate].length === 0)
                         hasMissing = true
                 })
 
-                // Step 3️⃣: If missing → sync daily tasks
+                // Step 2️⃣: If missing → sync daily tasks
                 if (hasMissing) {
                     console.log("🔄 Missing daily tasks found, syncing...")
                     const syncRes = await fetch(`${API}/syncDailyTasks.php`, {
@@ -261,7 +260,6 @@ export function WeekPlanner() {
                     const syncData = await syncRes.json()
                     console.log("✅ Sync completed:", syncData)
 
-                    // Step 4️⃣: Reload all tasks after sync
                     const reload = await fetch(
                         `${API}/getDayTasks.php?user_id=${loggedUser.id}&days=${daysParam}`
                     )
@@ -270,7 +268,7 @@ export function WeekPlanner() {
                     console.log("📦 Reloaded tasks:", reloadData)
                 }
 
-                // Step 5️⃣: Update UI
+                // Step 3️⃣: Update UI
                 setDays((prev) =>
                     prev.map((day) => ({
                         ...day,
@@ -282,8 +280,11 @@ export function WeekPlanner() {
             }
         }
 
-        loadTasks()
-    }, [currentIndex, days.length])
+        // ✅ Delay slightly to let days render first
+        const timer = setTimeout(() => loadTasks(), 200)
+        return () => clearTimeout(timer)
+    }, [signupDate, currentIndex, days.length])
+
 
     // ✅ Pagination logic
     const showNext = () => setCurrentIndex((prev) => (prev + 1 < days.length - 2 ? prev + 1 : prev))
