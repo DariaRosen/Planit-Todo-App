@@ -364,3 +364,23 @@
   background: #fef9c3;
   border: 1px solid #facc15;
 }
+
+.task-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.show-daily-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #444;
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        accent-color: #299764;
+    }
+}
