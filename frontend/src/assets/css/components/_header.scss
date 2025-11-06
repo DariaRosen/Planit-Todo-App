@@ -24,12 +24,25 @@
     font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
 
     img {
       width: 40px;
       height: 40px;
       vertical-align: middle;
       margin-right: 0.5rem;
+      animation: spin 6s linear infinite; // ⬅️ add this line
+    }
+  }
+
+  // Define the rotation animation
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 
