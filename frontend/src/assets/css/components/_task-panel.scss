@@ -75,29 +75,6 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
 
-    .day-title {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 0.6rem;
-      text-transform: uppercase;
-
-      .day-name {
-        font-size: 1rem;
-        font-weight: 700;
-      }
-
-      .day-date {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: #64748b;
-        margin-top: 0.2rem;
-      }
-    }
-
     .task-list {
       list-style: none;
       margin: 0;
@@ -256,24 +233,6 @@
 .day-over {
   background: #dbeafe !important;
   transition: background 0.2s ease;
-}
-
-
-/* -----------------------------
-   TODAY HIGHLIGHT
------------------------------ */
-.day-column.today,
-.day-title.today {
-  border: 2px solid #10b981;
-  background: #ecfdf5;
-  font-weight: 800;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
-  transform: scale(1.02);
-
-  &:hover {
-    background: #d1fae5;
-    transform: translateY(-2px);
-  }
 }
 
 /* -----------------------------

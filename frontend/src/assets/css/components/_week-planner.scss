@@ -249,8 +249,7 @@
 }
 
 /* Highlight today's card */
-.day-column.today,
-.day-title.today {
+.day-column.today {
   border: 2px solid #10b981; // vivid green border
   background: #ecfdf5; // light green
   font-weight: 800;
