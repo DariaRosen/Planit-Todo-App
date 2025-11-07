@@ -7,7 +7,10 @@ const dayTaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     status: { type: String, default: "pending" },
     created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now }
+    updated_at: { type: Date, default: Date.now },
 })
+
+// ✅ Prevent duplicates (unique combo)
+dayTaskSchema.index({ user_id: 1, task_id: 1, day_date: 1 }, { unique: true })
 
 export const DayTask = mongoose.model("DayTask", dayTaskSchema)
