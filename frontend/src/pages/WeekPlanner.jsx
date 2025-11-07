@@ -6,7 +6,8 @@ import { TaskIcon } from "../components/TaskIcon"
 import { Check, X, RotateCcw } from "lucide-react"
 
 export function WeekPlanner() {
-    const API = "http://localhost/Planit-Todo-App/backend/api"
+    // const API = "http://localhost/Planit-Todo-App/backend/api" // MySQL dev
+    const API = "http://localhost:4000/api"
     const [days, setDays] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [signupDate, setSignupDate] = useState(null)
@@ -29,7 +30,7 @@ export function WeekPlanner() {
         }
 
         try {
-            const res = await fetch(`${API}/addDayTask.php`, {
+            const res = await fetch(`${API}/addDayTask`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
