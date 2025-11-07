@@ -1,0 +1,12 @@
+[
+  {
+    "id": 14,
+    "name": "Daria",
+    "email": "daria.sk135@gmail.com",
+    "password": null,
+    "is_main_user": true,
+    "is_logged": true,
+    "created_at": { "$date": "2025-10-30T20:08:08Z" },
+    "avatar_url": "https://res.cloudinary.com/dool6mmp1/image/upload/v1758109525/women1_a3rukf.jpg"
+  }
+]
