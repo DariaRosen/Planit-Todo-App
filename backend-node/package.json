@@ -1,14 +1,16 @@
 {
   "name": "backend-node",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Node + Express backend for Planit Todo App",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node server.js",
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Daria Rosen",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
