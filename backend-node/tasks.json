@@ -1,0 +1,93 @@
+[
+  {
+    "title": "Turn on washing machine",
+    "completed": false,
+    "frequency": "as_needed",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Hang laundry",
+    "completed": false,
+    "frequency": "as_needed",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "To fold laundry",
+    "completed": false,
+    "frequency": "as_needed",
+    "created_at": { "$date": "2025-10-28T18:01:51Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Change bed sheets",
+    "completed": false,
+    "frequency": "weekly",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Clean fridge",
+    "completed": false,
+    "frequency": "weekly",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Water plants",
+    "completed": false,
+    "frequency": "weekly",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Supermarket",
+    "completed": false,
+    "frequency": "weekly",
+    "created_at": { "$date": "2025-11-06T23:48:48Z" },
+    "daily_amount": 0
+  },
+  {
+    "title": "Do the dishes",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 1
+  },
+  {
+    "title": "Make up kitchen",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 1
+  },
+  {
+    "title": "Make up dining room",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 1
+  },
+  {
+    "title": "Make up living room",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 1
+  },
+  {
+    "title": "Throw away trash",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-10-28T13:39:54Z" },
+    "daily_amount": 1
+  },
+  {
+    "title": "Start vacuum cleaner",
+    "completed": false,
+    "frequency": "daily",
+    "created_at": { "$date": "2025-11-04T22:48:44Z" },
+    "daily_amount": 0
+  }
+]
