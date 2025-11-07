@@ -25,7 +25,7 @@ export function TaskIcon({ title, size = 22, className = "" }) {
         { key: "trash", icon: <FaTrashAlt color="#ef4444" size={size} /> },
         { key: "clean", icon: <FaBroom color="#10b981" size={size} /> },
         { key: "living room", icon: <FaCouch color="#8b5cf6" size={size} /> },
-        { key: "kitchen", icon: <FaKitchenSet color="#f59e0b" size={size} /> },
+        { key: "kitchen", icon: <FaUtensilSpoon color="#f59e0b" size={size} /> },
         { key: "dining", icon: <MdOutlineTableBar color="#f472b6" size={size} /> },
         { key: "water", icon: <FaWater color="#3b82f6" size={size} /> },
     ]
