@@ -5,8 +5,8 @@ import {
     FaPen,
     FaWater,
     FaCouch,
-} from "react-icons/fa" // ← using fa (not fa6)
-import { FaKitchenSet } from "react-icons/fa6" // only this one is fa6
+    FaUtensilSpoon,
+} from "react-icons/fa" 
 import {
     MdOutlineLocalLaundryService,
     MdOutlineTableBar,
