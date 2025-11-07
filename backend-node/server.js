@@ -3,6 +3,7 @@ import cors from "cors"
 import mongoose from "mongoose"
 import dotenv from "dotenv"
 import dayTasksRouter from "./routes/dayTasks.routes.js"
+import tasksRouter from "./routes/tasks.routes.js"
 
 dotenv.config()
 const app = express()
@@ -21,3 +22,5 @@ app.use("/api/daytasks", dayTasksRouter)
 
 app.get("/", (req, res) => res.send("Planit Todo API running 🚀"))
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+
+app.use("/api/tasks", tasksRouter)
