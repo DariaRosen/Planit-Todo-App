@@ -7,105 +7,101 @@ export function Tasks() {
     const [frequency, setFrequency] = useState("daily")
     const [editingTask, setEditingTask] = useState(null)
 
-    const API = "http://localhost/Planit-Todo-App/backend/api"
+    // ✅ Node backend base URL
+    const API = "http://localhost:4000/api"
 
-    // Load all tasks
+    // 🧠 Load all tasks on mount
     useEffect(() => {
-        fetch(`${API}/getTasks.php`)
+        fetch(`${API}/tasks`)
             .then((res) => res.json())
-            .then(setTasks)
-            .catch(console.error)
+            .then((data) => {
+                if (Array.isArray(data)) setTasks(data)
+            })
+            .catch((err) => console.error("❌ Failed to load tasks:", err))
     }, [])
 
-    // Handle add or edit
-    const handleSave = () => {
+    // 💾 Add or edit task
+    const handleSave = async () => {
         if (!newTask.trim()) return
 
-        if (editingTask) {
-            // EDIT existing task
-            fetch(`${API}/updateTask.php`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    id: editingTask.id,
-                    title: newTask,
-                    frequency,
-                }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        setTasks((prev) =>
-                            prev.map((t) =>
-                                t.id === editingTask.id ? { ...t, title: newTask, frequency } : t
-                            )
-                        )
-                        setEditingTask(null)
-                        setNewTask("")
-                    }
-                })
-        } else {
-            // ADD new task
-            fetch(`${API}/addTask.php`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: newTask, frequency }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        setTasks([
-                            { id: data.id, title: newTask, frequency, completed: 0 },
-                            ...tasks,
-                        ])
-                        setNewTask("")
-                    }
-                })
-        }
-    }
-
-    async function handleDelete(taskId) {
         try {
-            const res = await fetch(
-                "http://localhost/Planit-Todo-App/backend/api/deleteTask.php",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ id: taskId }),
+            if (editingTask) {
+                // 🛠 Update existing task
+                const res = await fetch(`${API}/tasks/${editingTask._id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: newTask, frequency }),
+                })
+                const data = await res.json()
+
+                if (data.success) {
+                    setTasks((prev) =>
+                        prev.map((t) =>
+                            t._id === editingTask._id
+                                ? { ...t, title: newTask, frequency }
+                                : t
+                        )
+                    )
+                    setEditingTask(null)
+                    setNewTask("")
                 }
-            )
+            } else {
+                // ➕ Add new task
+                const res = await fetch(`${API}/tasks`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: newTask, frequency }),
+                })
+                const data = await res.json()
 
-            const data = await res.json()
-            if (!res.ok) throw new Error(data.error || "Failed to delete")
-
-            // Optional: update local state
-            setTasks((prev) => prev.filter((t) => t.id !== taskId))
+                if (data.success) {
+                    setTasks((prev) => [data.task, ...prev])
+                    setNewTask("")
+                }
+            }
         } catch (err) {
-            console.error("Delete failed:", err)
-            alert("Could not delete task.")
+            console.error("❌ Error saving task:", err)
         }
     }
 
+    // ❌ Delete a task
+    const handleDelete = async (taskId) => {
+        if (!window.confirm("Are you sure you want to delete this task?")) return
 
+        try {
+            const res = await fetch(`${API}/tasks/${taskId}`, { method: "DELETE" })
+            const data = await res.json()
+
+            if (data.success) {
+                setTasks((prev) => prev.filter((t) => t._id !== taskId))
+            } else {
+                console.error("Failed to delete:", data.error)
+            }
+        } catch (err) {
+            console.error("❌ Error deleting task:", err)
+        }
+    }
+
+    // ✏️ Edit mode
     const handleEdit = (task) => {
         setEditingTask(task)
         setNewTask(task.title)
         setFrequency(task.frequency)
     }
 
+    // 📂 Group tasks by frequency
     const grouped = {
         daily: tasks.filter((t) => t.frequency === "daily"),
         weekly: tasks.filter((t) => t.frequency === "weekly"),
         as_needed: tasks.filter((t) => t.frequency === "as_needed"),
     }
 
+    // 🧱 Render
     return (
         <div className="tasks-page">
             <h1 className="page-title">🗂️ All Tasks</h1>
 
-            {/* Add new / edit task */}
+            {/* ➕ Add / Edit Task */}
             <div className="task-form">
                 <input
                     value={newTask}
@@ -125,21 +121,27 @@ export function Tasks() {
                 </button>
             </div>
 
-            {/* Task Groups */}
+            {/* 🗂️ Grouped Tasks */}
             <div className="task-groups">
                 {Object.entries(grouped).map(([freq, list]) => (
                     <div key={freq} className="task-group">
                         <h2>{freq.replace("_", " ").toUpperCase()}</h2>
+
                         <div className="task-list">
-                            {list.map((task) => (
-                                <div key={task.id} className={`task-item ${freq}`}>
-                                    <span>{task.title}</span>
-                                    <div className="actions">
-                                        <button onClick={() => handleEdit(task)}>✏️</button>
-                                        <button onClick={() => handleDelete(task.id)}>🗑️</button>
+                            {list.length > 0 ? (
+                                list.map((task) => (
+                                    <div key={task._id} className={`task-item ${freq}`}>
+                                        <span>{task.title}</span>
+
+                                        <div className="actions">
+                                            <button onClick={() => handleEdit(task)}>✏️</button>
+                                            <button onClick={() => handleDelete(task._id)}>🗑️</button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="no-tasks">No {freq} tasks yet</p>
+                            )}
                         </div>
                     </div>
                 ))}
