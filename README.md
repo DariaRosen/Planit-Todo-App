@@ -30,7 +30,7 @@ Plan your week, organize daily chores, and keep track of recurring tasks like cl
 | ⚙️ Backend | **PHP 8** | Handles CRUD operations and connects to the database |
 | 🗄️ Database | **MySQL** | Stores all task and frequency data |
 | 🔥 Dev Server | **Apache (XAMPP)** | Local web server to execute PHP scripts |
-| ☁️ Deployment | **Render / Vercel** | Hosting for backend & frontend |
+| ☁️ Deployment | **Render** | Hosting for backend & frontend |
 
 ---
 
