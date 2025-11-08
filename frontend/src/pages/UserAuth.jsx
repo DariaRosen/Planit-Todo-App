@@ -17,9 +17,17 @@ export function UserAuth({ setUser }) {
     useEffect(() => {
         fetch(`${API}/users`)
             .then((res) => res.json())
-            .then(setUsers)
+            .then((data) => {
+                if (data.success && Array.isArray(data.users)) {
+                    setUsers(data.users)
+                } else {
+                    console.error("⚠️ Unexpected response format:", data)
+                    setUsers([])
+                }
+            })
             .catch((err) => console.error("❌ Failed to load users:", err))
     }, [])
+
 
     const updateForm = (key, val) => setForm((prev) => ({ ...prev, [key]: val }))
 
@@ -74,8 +82,8 @@ export function UserAuth({ setUser }) {
         }
 
         try {
-            const res = await fetch(`${API}/users/status/${found._id}`, {
-                method: "PUT",
+            const res = await fetch(`${API}/users/${found._id}/status`, {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ is_logged_in: true }),
             })
@@ -91,6 +99,7 @@ export function UserAuth({ setUser }) {
         } catch (err) {
             console.error("❌ Login failed:", err)
         }
+
     }
 
     return (
