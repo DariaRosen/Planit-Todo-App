@@ -141,9 +141,18 @@ export function WeekPlanner() {
         const allDays = []
         const oneDay = 24 * 60 * 60 * 1000
 
-        for (let d = new Date(signupDate); d <= today; d = new Date(d.getTime() + oneDay)) {
+        const startDate = new Date(signupDate)
+        startDate.setHours(0, 0, 0, 0)
+
+        if (startDate > today) {
+            // 👶 For new users signing up today — force start at today
+            startDate.setTime(today.getTime())
+        }
+
+        for (let d = new Date(startDate); d <= today; d = new Date(d.getTime() + oneDay)) {
             allDays.push(new Date(d))
         }
+
         for (let i = 1; i <= 7; i++) {
             const future = new Date(today)
             future.setDate(today.getDate() + i)
@@ -170,6 +179,10 @@ export function WeekPlanner() {
 
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
         const daysParam = visibleDays.map((d) => d.fullDate).join(",")
+
+        console.log("visibleDays", visibleDays);
+        console.log("daysParam", daysParam);
+
 
         const loadAndSync = async () => {
             try {
