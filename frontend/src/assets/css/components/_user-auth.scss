@@ -7,7 +7,7 @@
   padding: 2rem;
 }
 
-.user-form {
+.user-form-login {
   background: #ffffff;
   border-radius: 20px;
   padding: 2.5rem 3rem;
@@ -20,7 +20,7 @@
   transition: all 0.3s ease;
 }
 
-.user-form h2 {
+.user-form-login h2 {
   font-size: 1.6rem;
   color: #2f855a;
   font-weight: 600;
@@ -28,9 +28,9 @@
   margin-bottom: 0.5rem;
 }
 
-.user-form input[type="text"],
-.user-form input[type="email"],
-.user-form input[type="url"] {
+.user-form-login input[type="text"],
+.user-form-login input[type="email"],
+.user-form-login input[type="url"] {
   padding: 0.75rem 1rem;
   border: 1.5px solid #d1d5db;
   border-radius: 10px;
@@ -40,13 +40,13 @@
   background-color: #fafafa;
 }
 
-.user-form input:focus {
+.user-form-login input:focus {
   border-color: #38a169;
   background-color: #fff;
   box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.15);
 }
 
-.user-form .checkbox {
+.user-form-login .checkbox {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -55,7 +55,7 @@
   cursor: pointer;
 }
 
-.user-form input[type="checkbox"] {
+.user-form-login input[type="checkbox"] {
   width: 18px;
   height: 18px;
   accent-color: #38a169;
@@ -63,7 +63,7 @@
 }
 
 /* ✨ Buttons */
-.user-form button {
+.user-form-login button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -77,26 +77,26 @@
   transition: all 0.2s ease;
 }
 
-.user-form .add-btn,
-.user-form .login-btn {
+.user-form-login .add-btn,
+.user-form-login .login-btn {
   background: #38a169;
   color: white;
 }
 
-.user-form .add-btn:hover,
-.user-form .login-btn:hover {
+.user-form-login .add-btn:hover,
+.user-form-login .login-btn:hover {
   background: #2f855a;
   transform: translateY(-1px);
 }
 
-.user-form .switch {
+.user-form-login .switch {
   text-align: center;
   margin-top: 0.8rem;
   font-size: 0.9rem;
   color: #555;
 }
 
-.user-form .switch button {
+.user-form-login .switch button {
   color: #2f855a;
   background: none;
   border: none;
@@ -105,12 +105,12 @@
   transition: color 0.2s ease;
 }
 
-.user-form .switch button:hover {
+.user-form-login .switch button:hover {
   color: #276749;
 }
 
 /* ✨ Subtle hover animation */
-.user-form:hover {
+.user-form-login:hover {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
@@ -119,20 +119,20 @@
   .user-auth {
     background: #1f2937;
   }
-  .user-form {
+  .user-form-login-login {
     background: #2d3748;
     color: #f0fdf4;
   }
-  .user-form input {
+  .user-form-login-login input {
     background: #374151;
     color: #e2e8f0;
     border-color: #4a5568;
   }
-  .user-form input:focus {
+  .user-form-login-login input:focus {
     border-color: #68d391;
   }
-  .user-form .add-btn,
-  .user-form .login-btn {
+  .user-form-login-login .add-btn,
+  .user-form-login-login .login-btn {
     background: #48bb78;
   }
 }
