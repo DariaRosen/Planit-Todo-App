@@ -114,7 +114,6 @@ export function WeekPlanner() {
     useEffect(() => {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?.email) return
-        // in Mongo backend this will be /api/users/email/:email
         fetch(`${API}/users/email/${encodeURIComponent(loggedUser.email)}`)
             .then((res) => res.json())
             .then((data) => {
@@ -154,7 +153,7 @@ export function WeekPlanner() {
         if (todayIndex !== -1) setCurrentIndex(todayIndex)
     }, [signupDate])
 
-    // 🧩 Load Existing Tasks (Mongo)
+    // 🧩 Load + Sync Daily Tasks
     useEffect(() => {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?._id || days.length === 0) return
@@ -162,24 +161,47 @@ export function WeekPlanner() {
         const visibleDays = days.slice(currentIndex, currentIndex + 3)
         const daysParam = visibleDays.map((d) => d.fullDate).join(",")
 
-        const loadTasks = async () => {
+        const loadAndSync = async () => {
             try {
+                // Load current tasks
                 const res = await fetch(`${API}/daytasks?user_id=${loggedUser._id}&days=${daysParam}`)
                 const data = await res.json()
-                if (data.success) {
-                    setDays((prev) =>
-                        prev.map((day) => ({
-                            ...day,
-                            tasks: data.tasks[day.fullDate] || [],
-                        }))
+                let tasks = data.tasks || {}
+                let hasMissing = false
+
+                visibleDays.forEach((d) => {
+                    if (!tasks[d.fullDate] || tasks[d.fullDate].length === 0)
+                        hasMissing = true
+                })
+
+                // If missing → sync via new Node route
+                if (hasMissing) {
+                    console.log("🔄 Missing daily tasks — syncing…")
+                    await fetch(`${API}/sync-daily`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ user_id: loggedUser._id }),
+                    })
+                    const reload = await fetch(
+                        `${API}/daytasks?user_id=${loggedUser._id}&days=${daysParam}`
                     )
+                    const reloadData = await reload.json()
+                    tasks = reloadData.tasks || {}
                 }
+
+                // Update UI
+                setDays((prev) =>
+                    prev.map((day) => ({
+                        ...day,
+                        tasks: tasks[day.fullDate] || [],
+                    }))
+                )
             } catch (err) {
-                console.error("❌ Error loading tasks:", err)
+                console.error("❌ Error loading/syncing tasks:", err)
             }
         }
 
-        const timer = setTimeout(loadTasks, 300)
+        const timer = setTimeout(loadAndSync, 250)
         return () => clearTimeout(timer)
     }, [signupDate, currentIndex, days.length])
 
@@ -188,7 +210,6 @@ export function WeekPlanner() {
     const showPrev = () => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0))
     const visibleDays = days.slice(currentIndex, currentIndex + 3)
 
-    // 🧩 Render
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="week-planner-container">
