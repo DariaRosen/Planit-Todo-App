@@ -4,7 +4,7 @@ import { TaskIcon } from "./TaskIcon"
 
 function DraggableTask({ task }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-        id: `task-${task.id}`,
+        id: `task-${task._id || task.id}`,
         data: { ...task },
     })
 
@@ -28,18 +28,21 @@ function DraggableTask({ task }) {
 }
 
 export function TaskPanel() {
-    const API = "http://localhost/Planit-Todo-App/backend/api"
+    const API = "http://localhost:4000/api"
     const [tasks, setTasks] = useState([])
     const [includeDaily, setIncludeDaily] = useState(false)
 
-    // Fetch both weekly/as_needed and optionally daily tasks
+    // 🔄 Fetch both weekly/as_needed and optionally daily tasks
     useEffect(() => {
         const frequencies = includeDaily
             ? "daily,weekly,as_needed"
             : "weekly,as_needed"
 
         fetch(`${API}/tasks/by-frequency?frequencies=${frequencies}`)
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP error ${res.status}`)
+                return res.json()
+            })
             .then((data) => {
                 if (data.success && Array.isArray(data.tasks)) {
                     setTasks(data.tasks)
@@ -68,7 +71,12 @@ export function TaskPanel() {
 
             <div className="task-blocks">
                 {tasks.length > 0 ? (
-                    tasks.map((task) => <DraggableTask key={task.id} task={task} />)
+                    tasks.map((task, idx) => (
+                        <DraggableTask
+                            key={task._id || task.id || `task-${idx}`}
+                            task={task}
+                        />
+                    ))
                 ) : (
                     <p className="no-tasks">No tasks yet.</p>
                 )}

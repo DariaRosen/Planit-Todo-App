@@ -1,3 +1,6 @@
+import { useState } from "react"
+import { Edit, LogOut } from "lucide-react"   // ✅ correct import
+
 const API = "http://localhost:4000/api"
 
 export function UserPanel({ user, setUser }) {
@@ -65,11 +68,7 @@ export function UserPanel({ user, setUser }) {
                 <button type="submit" className="edit-btn">
                     <Edit size={18} /> Update
                 </button>
-                <button
-                    type="button"
-                    className="logout-btn"
-                    onClick={handleLogout}
-                >
+                <button type="button" className="logout-btn" onClick={handleLogout}>
                     <LogOut size={18} /> Logout
                 </button>
             </form>
