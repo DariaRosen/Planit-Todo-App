@@ -62,4 +62,38 @@ router.put("/:id", async (req, res) => {
     }
 })
 
+// ✅ GET tasks by frequency (replaces getTasksByFrequency.php)
+router.get("/by-frequency", async (req, res) => {
+    try {
+        const freqParam = req.query.frequencies
+        if (!freqParam) {
+            return res
+                .status(400)
+                .json({ success: false, error: "Missing ?frequencies parameter" })
+        }
+
+        const frequencies = freqParam
+            .split(",")
+            .map((f) => f.trim())
+            .filter(Boolean)
+
+        if (frequencies.length === 0) {
+            return res
+                .status(400)
+                .json({ success: false, error: "No valid frequencies provided" })
+        }
+
+        // ✅ Query MongoDB
+        const tasks = await Task.find({ frequency: { $in: frequencies } }).sort({
+            _id: -1,
+        })
+
+        res.json({ success: true, tasks })
+    } catch (err) {
+        console.error("❌ Error fetching tasks by frequency:", err)
+        res.status(500).json({ success: false, error: err.message })
+    }
+})
+
+
 export default router
