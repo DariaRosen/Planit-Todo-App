@@ -38,9 +38,7 @@ export function TaskPanel() {
             ? "daily,weekly,as_needed"
             : "weekly,as_needed"
 
-        fetch(`${API}/getTasksByFrequency.php?frequencies=${frequencies}`, {
-            credentials: "include",
-        })
+        fetch(`${API}/tasks/by-frequency?frequencies=${frequencies}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.success && Array.isArray(data.tasks)) {
