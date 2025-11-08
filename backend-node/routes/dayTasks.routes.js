@@ -92,4 +92,41 @@ router.get("/", async (req, res) => {
     }
 })
 
+// ✅ DELETE /api/daytasks/:id
+router.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        const { user_id } = req.body // optional sanity check
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing day_task_id",
+            })
+        }
+
+        // ✅ Optionally validate user_id (if passed)
+        const filter = user_id ? { _id: id, user_id } : { _id: id }
+
+        const deleted = await DayTask.findOneAndDelete(filter)
+
+        if (!deleted) {
+            return res.status(404).json({
+                success: false,
+                error: "Task not found or already deleted",
+            })
+        }
+
+        res.json({
+            success: true,
+            message: "Task removed successfully",
+            deletedId: deleted._id,
+        })
+    } catch (err) {
+        console.error("❌ Error deleting day task:", err)
+        res.status(500).json({ success: false, error: err.message })
+    }
+})
+
+
 export default router
