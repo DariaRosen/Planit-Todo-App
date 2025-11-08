@@ -1,0 +1,138 @@
+.user-auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 120px);
+  background: #f8faf9;
+  padding: 2rem;
+}
+
+.user-form {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.user-form h2 {
+  font-size: 1.6rem;
+  color: #2f855a;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.user-form input[type="text"],
+.user-form input[type="email"],
+.user-form input[type="url"] {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  background-color: #fafafa;
+}
+
+.user-form input:focus {
+  border-color: #38a169;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.15);
+}
+
+.user-form .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.user-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #38a169;
+  cursor: pointer;
+}
+
+/* ✨ Buttons */
+.user-form button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-form .add-btn,
+.user-form .login-btn {
+  background: #38a169;
+  color: white;
+}
+
+.user-form .add-btn:hover,
+.user-form .login-btn:hover {
+  background: #2f855a;
+  transform: translateY(-1px);
+}
+
+.user-form .switch {
+  text-align: center;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.user-form .switch button {
+  color: #2f855a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.user-form .switch button:hover {
+  color: #276749;
+}
+
+/* ✨ Subtle hover animation */
+.user-form:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌙 Dark mode (optional if your app supports it) */
+@media (prefers-color-scheme: dark) {
+  .user-auth {
+    background: #1f2937;
+  }
+  .user-form {
+    background: #2d3748;
+    color: #f0fdf4;
+  }
+  .user-form input {
+    background: #374151;
+    color: #e2e8f0;
+    border-color: #4a5568;
+  }
+  .user-form input:focus {
+    border-color: #68d391;
+  }
+  .user-form .add-btn,
+  .user-form .login-btn {
+    background: #48bb78;
+  }
+}
