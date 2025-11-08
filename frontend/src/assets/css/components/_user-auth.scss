@@ -136,3 +136,189 @@
     background: #48bb78;
   }
 }
+
+/* ✨ Shared form base (login + signup) */
+.user-form-login,
+.user-form-signup {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.user-form-signup {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ✨ Headings */
+.user-form-signup h2,
+.user-form-login h2 {
+  font-size: 1.7rem;
+  color: #2f855a;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.8rem;
+}
+
+/* ✨ Inputs */
+.user-form-signup input[type="text"],
+.user-form-signup input[type="email"],
+.user-form-signup input[type="url"],
+.user-form-login input[type="email"] {
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.user-form-signup input:focus,
+.user-form-login input:focus {
+  border-color: #38a169;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.15);
+}
+
+/* ✨ Checkbox styling */
+.user-form-signup .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  margin-top: 0.4rem;
+}
+
+.user-form-signup input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #38a169;
+  cursor: pointer;
+}
+
+/* ✨ Buttons */
+.user-form-signup button,
+.user-form-login button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-form-signup .add-btn,
+.user-form-login .login-btn {
+  background: #38a169;
+  color: white;
+}
+
+.user-form-signup .add-btn:hover,
+.user-form-login .login-btn:hover {
+  background: #2f855a;
+  transform: translateY(-1px);
+}
+
+/* ✨ Switch text links */
+.user-form-signup .switch,
+.user-form-login .switch {
+  text-align: center;
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.user-form-signup .switch button,
+.user-form-login .switch button {
+  color: #2f855a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.user-form-signup .switch button:hover,
+.user-form-login .switch button:hover {
+  color: #276749;
+}
+
+/* ✨ Subtle hover animation */
+.user-form-signup:hover,
+.user-form-login:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* ✨ Responsiveness */
+@media (max-width: 500px) {
+  .user-form-login,
+  .user-form-signup {
+    padding: 2rem;
+    border-radius: 16px;
+  }
+
+  .user-form-signup h2,
+  .user-form-login h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* 🌙 Optional Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .user-auth {
+    background: #111827;
+  }
+
+  .user-form-login,
+  .user-form-signup {
+    background: #1f2937;
+    color: #e2e8f0;
+  }
+
+  .user-form-signup input,
+  .user-form-login input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+
+  .user-form-signup input:focus,
+  .user-form-login input:focus {
+    border-color: #68d391;
+  }
+
+  .user-form-signup .add-btn,
+  .user-form-login .login-btn {
+    background: #48bb78;
+  }
+
+  .user-form-signup .switch button,
+  .user-form-login .switch button {
+    color: #9ae6b4;
+  }
+}

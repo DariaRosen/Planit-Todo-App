@@ -128,7 +128,7 @@ export function UserAuth({ setUser }) {
                     </p>
                 </form>
             ) : (
-                <form className="user-form" onSubmit={handleSignup}>
+                <form className="user-form-signup" onSubmit={handleSignup}>
                     <h2>📝 Sign Up</h2>
 
                     <input
