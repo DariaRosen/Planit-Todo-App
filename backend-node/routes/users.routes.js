@@ -81,4 +81,25 @@ router.put("/status/:id", async (req, res) => {
     }
 })
 
+// ✅ GET /api/users/email/:email
+router.get("/email/:email", async (req, res) => {
+    try {
+        const email = decodeURIComponent(req.params.email?.trim() || "")
+        if (!email) {
+            return res.status(400).json({ success: false, error: "Missing or empty email parameter" })
+        }
+
+        const user = await User.findOne({ email })
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found" })
+        }
+
+        res.json({ success: true, user })
+    } catch (err) {
+        console.error("❌ Error fetching user by email:", err)
+        res.status(500).json({ success: false, error: err.message })
+    }
+})
+
+
 export default router
