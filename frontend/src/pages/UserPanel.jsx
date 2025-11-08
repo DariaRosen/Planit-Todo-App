@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Edit, LogOut } from "lucide-react"   // ✅ correct import
+import { Edit, LogOut } from "lucide-react"
 
 const API = "http://localhost:4000/api"
 
@@ -16,16 +16,23 @@ export function UserPanel({ user, setUser }) {
             avatar_url: form.avatar_url.trim() || user.avatar_url,
         }
 
+        console.log("updated", updated)
+
         try {
             const res = await fetch(`${API}/users/${user._id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updated),
             })
+
             const data = await res.json()
             if (data.success) {
                 localStorage.setItem("loggedinUser", JSON.stringify(data.user))
                 setUser(data.user)
+
+                // ✅ Clear inputs after successful update
+                setForm({ name: "", avatar_url: "" })
+
                 alert("✅ Profile updated successfully.")
             } else {
                 alert("❌ Update failed.")
@@ -68,7 +75,11 @@ export function UserPanel({ user, setUser }) {
                 <button type="submit" className="edit-btn">
                     <Edit size={18} /> Update
                 </button>
-                <button type="button" className="logout-btn" onClick={handleLogout}>
+                <button
+                    type="button"
+                    className="logout-btn"
+                    onClick={handleLogout}
+                >
                     <LogOut size={18} /> Logout
                 </button>
             </form>
