@@ -96,7 +96,7 @@ export function UserAuth({ setUser }) {
     return (
         <div className="user-auth">
             {mode === "login" ? (
-                <form className="user-form" onSubmit={handleLogin}>
+                <form className="user-form-login" onSubmit={handleLogin}>
                     <h2>🔐 Login</h2>
 
                     <input
