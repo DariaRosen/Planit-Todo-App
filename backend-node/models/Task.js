@@ -7,6 +7,7 @@ const taskSchema = new mongoose.Schema({
         enum: ["daily", "weekly", "as_needed"],
         default: "as_needed"
     },
+    daily_amount: { type: Number, default: 0 }, // ✅ NEW FIELD (used by updateDailyAmount route)
     completed: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now }
 })
