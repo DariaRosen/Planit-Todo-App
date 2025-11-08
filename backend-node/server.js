@@ -7,6 +7,7 @@ import tasksRouter from "./routes/tasks.routes.js"
 import usersRouter from "./routes/users.routes.js"
 import syncDailyTasksRouter from "./routes/syncDailyTasks.routes.js"
 import updateDailyAmountRouter from "./routes/updateDailyAmount.routes.js"
+import updateDayTaskStatusRouter from "./routes/updateDayTaskStatus.routes.js"
 
 dotenv.config()
 const app = express()
@@ -48,6 +49,7 @@ app.use("/api/tasks", tasksRouter)
 app.use("/api/users", usersRouter)
 app.use("/api/sync-daily", syncDailyTasksRouter)
 app.use("/api/tasks", updateDailyAmountRouter)
+app.use("/api/daytasks", updateDayTaskStatusRouter)
 
 // ✅ Root route
 app.get("/", (req, res) => res.send("Planit Todo API running 🚀"))
