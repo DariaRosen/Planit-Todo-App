@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 import dayTasksRouter from "./routes/dayTasks.routes.js"
 import tasksRouter from "./routes/tasks.routes.js"
 import usersRouter from "./routes/users.routes.js"
+import syncDailyTasksRouter from "./routes/syncDailyTasks.routes.js"
 
 dotenv.config()
 const app = express()
@@ -44,6 +45,7 @@ mongoose
 app.use("/api/daytasks", dayTasksRouter)
 app.use("/api/tasks", tasksRouter)
 app.use("/api/users", usersRouter)
+app.use("/api/sync-daily", syncDailyTasksRouter)
 
 // ✅ Root route
 app.get("/", (req, res) => res.send("Planit Todo API running 🚀"))
