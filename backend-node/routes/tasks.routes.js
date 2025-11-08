@@ -95,5 +95,17 @@ router.get("/by-frequency", async (req, res) => {
     }
 })
 
+// Increment daily_amount counter
+router.patch("/:id/increment-daily", async (req, res) => {
+    try {
+        const { id } = req.params
+        const updated = await Task.findByIdAndUpdate(id, { $inc: { daily_amount: 1 } }, { new: true })
+        res.json({ success: true, daily_amount: updated.daily_amount })
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message })
+    }
+})
+
+
 
 export default router
