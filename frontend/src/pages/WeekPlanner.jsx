@@ -35,8 +35,16 @@ export function WeekPlanner() {
                 }),
             })
             const data = await res.json()
+
             if (data.success) {
                 console.log("✅ Task saved to DB:", data)
+
+                // ✅ Update parent task’s daily_amount counter
+                await fetch(`${API}/tasks/${taskData.id}/increment-daily`, {
+                    method: "PATCH",
+                })
+
+                // ✅ Add visually
                 setDays((prev) =>
                     prev.map((day) =>
                         day.fullDate === targetDay
@@ -54,13 +62,15 @@ export function WeekPlanner() {
                             : day
                     )
                 )
+            } else {
+                console.error("❌ Failed to save day task:", data)
             }
         } catch (err) {
             console.error("❌ Error adding task:", err)
         }
     }
 
-    // 🧩 Approve / Revert
+    // 🧩 Approve / Revert Task
     const handleApprove = async (day, dayTaskId) => {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?._id) return console.error("❌ No logged-in user found")
@@ -74,13 +84,13 @@ export function WeekPlanner() {
         }))
 
         try {
-            const res = await fetch(`${API}/daytasks/${dayTaskId}`, {
+            const res = await fetch(`${API}/daytasks/${dayTaskId}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus }),
+                body: JSON.stringify({ user_id: loggedUser._id, status: newStatus }),
             })
             const data = await res.json()
-            if (!data.success) console.error("❌ Failed to update:", data)
+            if (!data.success) console.error("❌ Failed to update status:", data)
         } catch (err) {
             console.error("❌ Error updating status:", err)
         }
@@ -123,7 +133,7 @@ export function WeekPlanner() {
             .catch(() => setSignupDate(new Date()))
     }, [])
 
-    // 🧩 Generate full day list
+    // 🧩 Generate day list
     useEffect(() => {
         if (!signupDate) return
         const today = new Date()
@@ -163,7 +173,6 @@ export function WeekPlanner() {
 
         const loadAndSync = async () => {
             try {
-                // Load current tasks
                 const res = await fetch(`${API}/daytasks?user_id=${loggedUser._id}&days=${daysParam}`)
                 const data = await res.json()
                 let tasks = data.tasks || {}
@@ -174,14 +183,27 @@ export function WeekPlanner() {
                         hasMissing = true
                 })
 
-                // If missing → sync via new Node route
+                // Auto-sync daily tasks if missing
                 if (hasMissing) {
-                    console.log("🔄 Missing daily tasks — syncing…")
-                    await fetch(`${API}/sync-daily`, {
+                    console.log("🔄 Syncing missing daily tasks...")
+                    const syncRes = await fetch(`${API}/sync-daily`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ user_id: loggedUser._id }),
                     })
+                    const syncData = await syncRes.json()
+                    console.log("✅ Sync complete:", syncData)
+
+                    // After sync, increment counts for any new tasks
+                    if (syncData?.newTaskIds?.length) {
+                        for (const taskId of syncData.newTaskIds) {
+                            await fetch(`${API}/tasks/${taskId}/increment-daily`, {
+                                method: "PATCH",
+                            })
+                        }
+                    }
+
+                    // Reload updated day tasks
                     const reload = await fetch(
                         `${API}/daytasks?user_id=${loggedUser._id}&days=${daysParam}`
                     )
@@ -189,7 +211,6 @@ export function WeekPlanner() {
                     tasks = reloadData.tasks || {}
                 }
 
-                // Update UI
                 setDays((prev) =>
                     prev.map((day) => ({
                         ...day,

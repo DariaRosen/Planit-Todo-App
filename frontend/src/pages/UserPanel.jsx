@@ -1,13 +1,7 @@
-import { useState } from "react"
-import { Edit, LogOut } from "lucide-react"
-
-const API = "http://localhost/Planit-Todo-App/backend/api"
+const API = "http://localhost:4000/api"
 
 export function UserPanel({ user, setUser }) {
-    const [form, setForm] = useState({
-        name: "",
-        avatar_url: "",
-    })
+    const [form, setForm] = useState({ name: "", avatar_url: "" })
 
     const updateForm = (key, val) => setForm((prev) => ({ ...prev, [key]: val }))
 
@@ -20,15 +14,15 @@ export function UserPanel({ user, setUser }) {
         }
 
         try {
-            const res = await fetch(`${API}/updateUserDetails.php`, {
-                method: "POST",
+            const res = await fetch(`${API}/users/${user._id}`, {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updated),
             })
             const data = await res.json()
             if (data.success) {
-                localStorage.setItem("loggedinUser", JSON.stringify(updated))
-                setUser(updated)
+                localStorage.setItem("loggedinUser", JSON.stringify(data.user))
+                setUser(data.user)
                 alert("✅ Profile updated successfully.")
             } else {
                 alert("❌ Update failed.")
@@ -40,10 +34,10 @@ export function UserPanel({ user, setUser }) {
 
     const handleLogout = async () => {
         try {
-            await fetch(`${API}/updateUserStatus.php`, {
-                method: "POST",
+            await fetch(`${API}/users/${user._id}/status`, {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: user.id, is_logged_in: 0 }),
+                body: JSON.stringify({ is_logged_in: false }),
             })
         } catch (err) {
             console.error("Logout failed:", err)
