@@ -18,6 +18,7 @@ const app = express()
 const defaultAllowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000",
+    "http://localhost:5174",
     "https://planit-todo-app.vercel.app",
 ]
 
