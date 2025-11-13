@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDraggable } from "@dnd-kit/core"
 import { TaskIcon } from "./TaskIcon"
+import { buildApiUrl } from "../lib/api-config"
 
 function DraggableTask({ task }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -28,7 +29,7 @@ function DraggableTask({ task }) {
 }
 
 export function TaskPanel() {
-    const API = "http://localhost:4000/api"
+    const apiBaseUrl = buildApiUrl()
     const [tasks, setTasks] = useState([])
     const [includeDaily, setIncludeDaily] = useState(false)
 
@@ -38,7 +39,7 @@ export function TaskPanel() {
             ? "daily,weekly,as_needed"
             : "weekly,as_needed"
 
-        fetch(`${API}/tasks/by-frequency?frequencies=${frequencies}`)
+        fetch(`${apiBaseUrl}/tasks/by-frequency?frequencies=${frequencies}`)
             .then((res) => {
                 if (!res.ok) throw new Error(`HTTP error ${res.status}`)
                 return res.json()

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Edit, LogOut } from "lucide-react"
-
-const API = "http://localhost:4000/api"
+import { buildApiUrl } from "../lib/api-config"
 
 export function UserPanel({ user, setUser }) {
+    const apiBaseUrl = buildApiUrl()
     const [form, setForm] = useState({ name: "", avatar_url: "" })
 
     const updateForm = (key, val) => setForm((prev) => ({ ...prev, [key]: val }))
@@ -19,7 +19,7 @@ export function UserPanel({ user, setUser }) {
         console.log("updated", updated)
 
         try {
-            const res = await fetch(`${API}/users/${user._id}`, {
+            const res = await fetch(`${apiBaseUrl}/users/${user._id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updated),
@@ -44,7 +44,7 @@ export function UserPanel({ user, setUser }) {
 
     const handleLogout = async () => {
         try {
-            await fetch(`${API}/users/${user._id}/status`, {
+            await fetch(`${apiBaseUrl}/users/${user._id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ is_logged_in: false }),

@@ -1,7 +1,8 @@
 import { useState } from "react"
+import { buildApiUrl } from "../lib/api-config"
 
 export function GenerateDays({ tasks }) {
-    const API = "http://localhost:4000/api"
+    const apiBaseUrl = buildApiUrl()
     const [status, setStatus] = useState(null)
 
     const generateNext7Days = async () => {
@@ -45,7 +46,7 @@ export function GenerateDays({ tasks }) {
 
                         console.log("🛰 Sending:", payload)
 
-                        const res = await fetch(`${API}/daytasks`, {
+                        const res = await fetch(`${apiBaseUrl}/daytasks`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(payload),

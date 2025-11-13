@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react"
 import "../assets/css/setup/main.scss"
+import { buildApiUrl } from "../lib/api-config"
 
 export function Tasks() {
     const [tasks, setTasks] = useState([])
     const [newTask, setNewTask] = useState("")
     const [frequency, setFrequency] = useState("daily")
     const [editingTask, setEditingTask] = useState(null)
-
-    // ✅ Node backend base URL
-    const API = "http://localhost:4000/api"
+    const apiBaseUrl = buildApiUrl()
 
     // 🧠 Load all tasks on mount
     useEffect(() => {
-        fetch(`${API}/tasks`)
+        fetch(`${apiBaseUrl}/tasks`)
             .then((res) => res.json())
             .then((data) => {
                 if (Array.isArray(data)) setTasks(data)
@@ -27,7 +26,7 @@ export function Tasks() {
         try {
             if (editingTask) {
                 // 🛠 Update existing task
-                const res = await fetch(`${API}/tasks/${editingTask._id}`, {
+                const res = await fetch(`${apiBaseUrl}/tasks/${editingTask._id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ title: newTask, frequency }),
@@ -47,7 +46,7 @@ export function Tasks() {
                 }
             } else {
                 // ➕ Add new task
-                const res = await fetch(`${API}/tasks`, {
+                const res = await fetch(`${apiBaseUrl}/tasks`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ title: newTask, frequency }),
@@ -69,7 +68,7 @@ export function Tasks() {
         if (!window.confirm("Are you sure you want to delete this task?")) return
 
         try {
-            const res = await fetch(`${API}/tasks/${taskId}`, { method: "DELETE" })
+            const res = await fetch(`${apiBaseUrl}/tasks/${taskId}`, { method: "DELETE" })
             const data = await res.json()
 
             if (data.success) {

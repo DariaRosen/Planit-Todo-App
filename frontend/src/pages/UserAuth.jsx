@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { UserPlus, LogIn } from "lucide-react"
-
-const API = "http://localhost:4000/api"
+import { buildApiUrl } from "../lib/api-config"
 
 export function UserAuth({ setUser }) {
+    const apiBaseUrl = buildApiUrl()
     const [mode, setMode] = useState("login") // 'login' | 'signup'
     const [users, setUsers] = useState([])
     const [form, setForm] = useState({
@@ -15,7 +15,7 @@ export function UserAuth({ setUser }) {
 
     // 🔄 Load all users from MongoDB
     useEffect(() => {
-        fetch(`${API}/users`)
+        fetch(`${apiBaseUrl}/users`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.success && Array.isArray(data.users)) {
@@ -47,7 +47,7 @@ export function UserAuth({ setUser }) {
         }
 
         try {
-            const res = await fetch(`${API}/users`, {
+            const res = await fetch(`${apiBaseUrl}/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -82,7 +82,7 @@ export function UserAuth({ setUser }) {
         }
 
         try {
-            const res = await fetch(`${API}/users/${found._id}/status`, {
+            const res = await fetch(`${apiBaseUrl}/users/${found._id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ is_logged_in: true }),
