@@ -52,31 +52,43 @@
 
   button {
     width: 100%;
-    @include gradient-button();
-    border-radius: 999px;
-    padding: 0.75rem 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.78rem 1.25rem;
     font-size: 1rem;
-
-    &:hover {
-      @include gradient-button-hover();
-    }
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   }
 
   .edit-btn {
     margin-top: 0.3rem;
-    @include gradient-button(($color-sky, $color-sand, $color-teal), 0.75rem, 1.2rem, 999px);
+    background: linear-gradient(135deg, mix($color-teal, $color-sky, 68%), mix($color-teal, #ffffff, 40%));
+    border-color: mix($color-teal, $color-sky, 55%);
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba($color-teal, 0.28);
 
     &:hover {
-      @include gradient-button-hover($color-sand);
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba($color-teal, 0.32);
+      filter: brightness(1.04);
     }
   }
 
   .logout-btn {
     margin-top: 0.6rem;
-    @include gradient-button((#ff6b6b, $color-sand, $color-teal), 0.75rem, 1.2rem, 999px, #ff6b6b);
+    background: linear-gradient(130deg, mix($color-sand, $color-sky, 60%), mix($color-teal, $color-sand, 55%));
+    border-color: mix($color-sand, $color-teal, 45%);
+    color: #ffffff;
+    box-shadow: 0 12px 22px rgba($color-sand, 0.25);
 
     &:hover {
-      @include gradient-button-hover(#ff6b6b);
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba($color-sand, 0.28);
+      filter: brightness(1.04);
     }
 
     svg {
