@@ -163,7 +163,7 @@ export function WeekPlanner() {
         const formatted = allDays.map((date) => ({
             fullDate: date.toLocaleDateString("en-CA"),
             name: date.toLocaleDateString("en-US", { weekday: "long" }),
-            short: date.toLocaleDateString("en-US", { day: "numeric", month: "numeric" }),
+            short: date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" }),
             isToday: date.toDateString() === today.toDateString(),
             tasks: [],
         }))
