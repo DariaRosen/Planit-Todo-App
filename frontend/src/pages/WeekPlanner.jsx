@@ -253,9 +253,17 @@ export function WeekPlanner() {
                 </div>
 
                 <div className="week-planner-header">
-                    <button onClick={showPrev} className="arrow-btn" disabled={currentIndex === 0}>◀</button>
+                    <button onClick={showPrev} className="arrow-btn" disabled={currentIndex === 0} aria-label="Previous days">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="arrow-icon arrow-icon-prev">
+                            <path d="M21 8H11V5a1 1 0 0 0-1.707-.707l-7 7a1 1 0 0 0 0 1.414l7 7A1 1 0 0 0 11 19v-3h10a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                        </svg>
+                    </button>
                     <h2 className="week-title">Planit Timeline</h2>
-                    <button onClick={showNext} className="arrow-btn" disabled={currentIndex + 3 >= days.length}>▶</button>
+                    <button onClick={showNext} className="arrow-btn" disabled={currentIndex + 3 >= days.length} aria-label="Next days">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="arrow-icon arrow-icon-next">
+                            <path d="M21 8H11V5a1 1 0 0 0-1.707-.707l-7 7a1 1 0 0 0 0 1.414l7 7A1 1 0 0 0 11 19v-3h10a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                        </svg>
+                    </button>
                 </div>
 
                 <div className="week-planner">
