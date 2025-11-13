@@ -253,7 +253,7 @@ export function WeekPlanner() {
     const visibleDays = days.slice(currentIndex, currentIndex + 3)
 
     return (
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext onDragEnd={handleDragEnd} dropAnimation={null}>
             <div className="week-planner-container">
                 <div className="task-panel-wrapper">
                     <TaskPanel />
