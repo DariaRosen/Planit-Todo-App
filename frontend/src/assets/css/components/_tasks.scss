@@ -91,12 +91,21 @@
         gap: 0.3rem;
 
         button {
-            @include gradient-button(($color-sky, $color-sand, $color-teal), 0.3rem, 0.6rem, 999px);
-            font-size: 0.85rem;
+          background: none;
+          border: none;
+          font-size: 1.2rem;
+          padding: 0.2rem 0.35rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          color: mix($color-navy, $color-sky, 35%);
+          transition: color 0.2s ease, transform 0.2s ease;
 
-            &:hover {
-              @include gradient-button-hover($color-sand);
-            }
+          &:hover {
+            color: mix($color-navy, $color-sand, 45%);
+            transform: translateY(-1px);
+          }
         }
       }
     }
