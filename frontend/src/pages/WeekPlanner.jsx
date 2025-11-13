@@ -20,6 +20,12 @@ export function WeekPlanner() {
         const taskData = active.data?.current
         if (!taskData) return
 
+        const sourceTaskId = taskData.id || taskData._id
+        if (!sourceTaskId) {
+            console.error("❌ Dragged task is missing an id/_id:", taskData)
+            return
+        }
+
         const targetDay = over.id.replace("day-", "")
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?._id) return console.error("❌ No logged-in user found")
@@ -30,7 +36,7 @@ export function WeekPlanner() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     user_id: loggedUser._id,
-                    task_id: taskData.id,
+                    task_id: sourceTaskId,
                     day_date: targetDay,
                     title: taskData.title,
                 }),
@@ -41,7 +47,7 @@ export function WeekPlanner() {
                 console.log("✅ Task saved to DB:", data)
 
                 // ✅ Update parent task’s daily_amount counter
-                await fetch(`${apiBaseUrl}/tasks/${taskData.id}/increment-daily`, {
+                await fetch(`${apiBaseUrl}/tasks/${sourceTaskId}/increment-daily`, {
                     method: "PATCH",
                 })
 
@@ -56,7 +62,8 @@ export function WeekPlanner() {
                                     {
                                         ...taskData,
                                         id: data.id,
-                                        uniqueId: `${taskData.id}-${Date.now()}`,
+                                        task_id: sourceTaskId,
+                                        uniqueId: `${sourceTaskId}-${Date.now()}`,
                                     },
                                 ],
                             }
