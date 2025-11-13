@@ -145,12 +145,26 @@
 }
 
 .logout-btn {
-  @include gradient-button((#ff6b6b, $color-sand, $color-teal), 0.4rem, 0.9rem, 999px, #ff6b6b);
+  @include gradient-button(
+    mix($color-sand, $color-sky, 40%),
+    0.45rem,
+    1rem,
+    999px,
+    mix($color-sand, $color-sky, 25%)
+  );
+  border-color: mix($color-sand, $color-teal, 55%);
   font-size: 0.9rem;
+  outline: none;
 }
 
 .logout-btn:hover {
-  @include gradient-button-hover(#ff6b6b);
+  @include gradient-button-hover();
+  border-color: mix($color-sand, $color-teal, 55%);
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid mix($color-sand, $color-teal, 55%);
+  outline-offset: 3px;
 }
 
 .login-btn {
