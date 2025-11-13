@@ -51,45 +51,36 @@
   }
 
   button {
-    width: 100%; // same width as input
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-weight: 500;
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    cursor: pointer;
+    width: 100%;
+    @include gradient-button();
+    border-radius: 999px;
+    padding: 0.75rem 1.2rem;
     font-size: 1rem;
-    transition: background-color 0.25s ease, transform 0.15s ease;
 
     &:hover {
-      transform: translateY(-1px);
+      @include gradient-button-hover();
     }
   }
 
   .edit-btn {
-    background-color: #5cb88e;
-    color: white;
     margin-top: 0.3rem;
+    @include gradient-button(($color-sky, $color-sand, $color-teal), 0.75rem, 1.2rem, 999px);
 
     &:hover {
-      background-color: #4fa97e;
+      @include gradient-button-hover($color-sand);
     }
   }
 
   .logout-btn {
-    background-color: #f0f0f0;
-    color: #555;
     margin-top: 0.6rem;
+    @include gradient-button((#ff6b6b, $color-sand, $color-teal), 0.75rem, 1.2rem, 999px, #ff6b6b);
 
     &:hover {
-      background-color: #e0e0e0;
+      @include gradient-button-hover(#ff6b6b);
     }
 
     svg {
-      stroke: #777;
+      stroke: #ffffff;
     }
   }
 }

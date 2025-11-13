@@ -33,15 +33,11 @@
     }
 
     button {
-      background: $color-button;
-      color: white;
-      border: none;
-      padding: 0.6rem 1rem;
-      border-radius: $border-radius;
-      cursor: pointer;
-      transition: background 0.2s;
+      @include gradient-button();
+      padding: 0.6rem 1.2rem;
+
       &:hover {
-        background: #2563eb;
+        @include gradient-button-hover();
       }
     }
   }
@@ -95,15 +91,12 @@
         gap: 0.3rem;
 
         button {
-          background: none;
-          border: none;
-          font-size: 1rem;
-          padding: 10px 10px;
-          cursor: pointer;
-          transition: opacity 0.2s;
-          &:hover {
-            opacity: 0.6;
-          }
+            @include gradient-button(($color-sky, $color-sand, $color-teal), 0.3rem, 0.6rem, 999px);
+            font-size: 0.85rem;
+
+            &:hover {
+              @include gradient-button-hover($color-sand);
+            }
         }
       }
     }

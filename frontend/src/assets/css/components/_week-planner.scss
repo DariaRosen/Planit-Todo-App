@@ -1,6 +1,20 @@
 /* -----------------------------
    WEEK PLANNER CONTAINER
 ----------------------------- */
+@function soft-tone($base, $ratio: 85%) {
+  @return mix(#ffffff, $base, $ratio);
+}
+
+$day-accent-colors: (
+  1: $color-teal,
+  2: $color-sky,
+  3: $color-sand,
+  4: $color-blue,
+  5: mix($color-teal, $color-sand, 55%),
+  6: mix($color-sky, $color-sand, 55%),
+  7: mix($color-teal, $color-sky, 55%)
+);
+
 .week-planner-container {
   display: flex;
   flex-direction: column;
@@ -32,31 +46,25 @@
     .week-title {
       font-size: 1.3rem;
       font-weight: 600;
-      color: #1e293b;
+      color: $color-navy;
     }
 
     .arrow-btn {
-      background: $color-button;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      width: 36px;
-      height: 36px;
+      @include gradient-button(($color-sky, $color-sand, $color-teal), 0.3rem, 0.3rem, 50%);
+      width: 44px;
+      height: 44px;
       font-size: 1.2rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 0;
 
       &:hover:not(:disabled) {
-        background: #299764;
+        @include gradient-button-hover($color-sand);
       }
 
       &:disabled {
-        opacity: 0.4;
+        opacity: 0.35;
         cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
       }
     }
   }
@@ -81,7 +89,8 @@
     min-width: 160px;
     background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba($color-navy, 0.04);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
     padding: 1rem;
     box-sizing: border-box;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -100,31 +109,60 @@
     }
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 40px rgba(15, 23, 42, 0.12);
     }
 
     .task-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f1f5f9;
-      border-radius: 8px;
-      padding: 0.5rem 0.7rem;
-      font-size: 0.9rem;
-      color: #1e293b;
-      border: 1px solid #e2e8f0;
+      background: rgba(#ffffff, 0.6);
+      border-radius: 12px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.95rem;
+      color: $color-navy;
+      border: 1px solid rgba(#ffffff, 0.4);
       text-align: left;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
       &:hover {
-        background: #e0f2fe;
+        background: rgba(#ffffff, 0.85);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+      }
+
+      &.frequency-daily {
+        background: soft-tone($color-teal, 90%);
+        border-color: mix(#ffffff, $color-teal, 68%);
+
+        &:hover {
+          background: soft-tone($color-teal, 94%);
+        }
+      }
+
+      &.frequency-weekly {
+        background: soft-tone($color-sand, 90%);
+        border-color: mix(#ffffff, $color-sand, 68%);
+
+        &:hover {
+          background: soft-tone($color-sand, 94%);
+        }
+      }
+
+      &.frequency-as_needed {
+        background: soft-tone($color-sky, 90%);
+        border-color: mix(#ffffff, $color-sky, 68%);
+
+        &:hover {
+          background: soft-tone($color-sky, 94%);
+        }
       }
 
       &.approved {
-        background: #dcfce7; // light green
-        border-color: #86efac;
-        color: #166534;
+        background: rgba($color-teal, 0.16);
+        border-color: rgba($color-teal, 0.4);
+        color: darken($color-teal, 25%);
       }
 
       .task-actions {
@@ -132,31 +170,45 @@
         gap: 0.3rem;
 
         button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0.2rem;
-          border-radius: 4px;
-          transition: background 0.2s ease;
+          @include gradient-button(($color-sky, $color-sand, $color-teal), 0.32rem, 0.32rem, 50%);
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          font-size: 0.95rem;
 
           svg {
-            color: #475569;
+            color: #ffffff;
           }
 
-          &:hover svg {
-            color: #0ea5e9;
+          &:hover {
+            @include gradient-button-hover($color-sand);
           }
 
-          &.approve-btn:hover svg {
-            color: #16a34a; // green
+          &.approve-btn {
+            background: linear-gradient(135deg, $color-teal, lighten($color-teal, 12%), $color-seafoam);
+            box-shadow: 0 12px 22px rgba($color-teal, 0.3);
+
+            &:hover {
+              @include gradient-button-hover($color-teal);
+            }
           }
 
-          &.remove-btn:hover svg {
-            color: #dc2626; // red
+          &.remove-btn {
+            background: linear-gradient(135deg, #ff6b6b, $color-sand, lighten($color-sand, 12%));
+            box-shadow: 0 12px 22px rgba(#ff6b6b, 0.28);
+
+            &:hover {
+              @include gradient-button-hover(#ff6b6b);
+            }
           }
 
-          &.revert-btn:hover svg {
-            color: #2563eb; // blue
+          &.revert-btn {
+            background: linear-gradient(135deg, $color-sky, lighten($color-sky, 15%), $color-blue);
+            box-shadow: 0 12px 22px rgba($color-blue, 0.3);
+
+            &:hover {
+              @include gradient-button-hover($color-blue);
+            }
           }
         }
       }
@@ -168,7 +220,7 @@
       align-items: center;
       font-size: 1rem;
       font-weight: 700;
-      color: #1e293b;
+      color: $color-navy;
       margin-bottom: 0.6rem;
       text-transform: uppercase;
 
@@ -179,8 +231,8 @@
 
       .day-date {
         font-size: 0.85rem;
-        font-weight: 500;
-        color: #64748b;
+        font-weight: 600;
+        color: rgba($color-navy, 0.7);
         margin-top: 0.2rem;
       }
     }
@@ -194,23 +246,45 @@
       list-style: none;
 
       .task-item {
-        background: #f1f5f9;
-        border-radius: 8px;
-        padding: 0.5rem 0.7rem;
-        font-size: 0.9rem;
-        color: #1e293b;
-        border: 1px solid #e2e8f0;
-        transition: background 0.2s ease;
+        background: rgba(#ffffff, 0.65);
+        border-radius: 12px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.92rem;
+        color: $color-navy;
+        border: 1px solid rgba(#ffffff, 0.4);
+        transition: background 0.2s ease, transform 0.2s ease;
 
         &:hover {
-          background: #e0f2fe;
+          background: rgba(#ffffff, 0.9);
+          transform: translateY(-1px);
+        }
+
+        &.frequency-daily {
+          background: soft-tone($color-teal, 90%);
+          border-color: mix(#ffffff, $color-teal, 68%);
+        }
+
+        &.frequency-weekly {
+          background: soft-tone($color-sand, 90%);
+          border-color: mix(#ffffff, $color-sand, 68%);
+        }
+
+        &.frequency-as_needed {
+          background: soft-tone($color-sky, 90%);
+          border-color: mix(#ffffff, $color-sky, 68%);
+        }
+
+        &.approved {
+          background: rgba($color-teal, 0.16);
+          border-color: rgba($color-teal, 0.4);
+          color: darken($color-teal, 25%);
         }
       }
     }
 
     .no-tasks {
       text-align: left;
-      color: #94a3b8;
+      color: rgba($color-navy, 0.5);
       font-size: 0.9rem;
       margin: 0.4rem 0 0 0.3rem;
     }
@@ -242,6 +316,37 @@
   }
 }
 
+@each $index, $base-color in $day-accent-colors {
+  .week-planner .day-column:nth-child(7n + #{$index}) {
+    background: soft-tone($base-color, 88%);
+    border-color: mix(#ffffff, $base-color, 64%);
+    box-shadow: 0 18px 38px rgba($base-color, 0.18);
+
+    .day-title {
+      color: mix($color-navy, $base-color, 45%);
+    }
+
+    .day-date {
+      color: mix($color-navy, $base-color, 30%);
+    }
+
+    .task-item {
+      background: soft-tone($base-color, 94%);
+      border-color: mix(#ffffff, $base-color, 76%);
+
+      &:hover {
+        background: soft-tone($base-color, 97%);
+      }
+    }
+
+    .task-item.approved {
+      background: soft-tone($color-teal, 90%);
+      border-color: mix(#ffffff, $color-teal, 70%);
+      color: darken($color-teal, 30%);
+    }
+  }
+}
+
 /* -----------------------------
    TASK ITEM AND ICONS
 ----------------------------- */
@@ -249,6 +354,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex-wrap: wrap;
 
   .task-icon {
     color: #64748b;
@@ -260,10 +366,22 @@
     flex: 1;
     font-size: 0.9rem;
   }
+
+  .task-frequency-tag {
+    @include gradient-button(($color-sand, lighten($color-sand, 10%), $color-teal), 0.2rem, 0.6rem, 999px, $color-sand);
+    font-size: 0.7rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    box-shadow: none;
+    transition: none;
+    transform: none;
+    white-space: nowrap;
+  }
 }
 
 .task-item.approved .task-icon {
-  color: #16a34a; // green when approved
+  color: darken($color-teal, 18%);
 }
 
 .task-icon {
@@ -277,21 +395,37 @@
 
 /* Highlight droppable hover */
 .day-over {
-  background: #dbeafe !important;
-  transition: background 0.2s ease;
+  background: rgba($color-sky, 0.18) !important;
+  transition: background 0.2s ease, transform 0.2s ease;
+  transform: translateY(-3px);
 }
 
 /* Highlight today's column */
 .day-column.today {
-  border: 2px solid #10b981;
-  background: #ecfdf5;
+  border: 2px solid rgba($color-teal, 0.7);
+  background: linear-gradient(160deg, soft-tone($color-teal, 82%), soft-tone($color-sand, 88%));
   font-weight: 800;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 22px 42px rgba($color-teal, 0.28);
   transform: scale(1.02);
 
   &:hover {
-    background: #d1fae5;
+    background: linear-gradient(160deg, soft-tone($color-teal, 80%), soft-tone($color-sand, 84%));
     transform: translateY(-2px);
+  }
+}
+
+.day-title.today {
+  color: $color-navy;
+  font-weight: 800;
+
+  .day-name {
+    font-size: 1.12rem;
+    letter-spacing: 0.4px;
+  }
+
+  .day-date {
+    font-weight: 700;
+    color: darken($color-sand, 12%);
   }
 }
 
@@ -312,6 +446,18 @@
 
 /* Mark days with tasks */
 .has-tasks {
-  border: 2px solid #3b82f6;
-  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+  border: 2px solid rgba($color-sky, 0.65);
+  box-shadow: 0 0 10px rgba($color-sky, 0.35);
+}
+
+.generate-btn {
+  @include gradient-button();
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  font-size: 0.95rem;
+  margin-top: 0.75rem;
+
+  &:hover {
+    @include gradient-button-hover();
+  }
 }
