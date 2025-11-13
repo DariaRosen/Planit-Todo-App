@@ -5,8 +5,9 @@ import { WeekPlanner } from "./pages/WeekPlanner"
 import { Tasks } from "./pages/Tasks"
 import { UserPanel } from "./pages/UserPanel"
 import { UserAuth } from "./pages/UserAuth"
+import { buildApiUrl } from "./lib/api-config"
 
-const API = "http://localhost:4000/api"
+const apiBaseUrl = buildApiUrl()
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -37,7 +38,7 @@ export default function App() {
 
   async function autoLoginDaria() {
     try {
-      const res = await fetch(`${API}/users/email/daria.sk135@gmail.com`)
+      const res = await fetch(`${apiBaseUrl}/users/email/daria.sk135@gmail.com`)
       const data = await res.json()
       console.log("📡 Auto-login check response:", data)
 
@@ -46,7 +47,7 @@ export default function App() {
 
         // ✅ (Optional) Mark logged in if needed
         if (!dbUser.is_logged_in) {
-          await fetch(`${API}/users/${dbUser._id}/status`, {
+          await fetch(`${apiBaseUrl}/users/${dbUser._id}/status`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ is_logged_in: true }),
@@ -70,7 +71,7 @@ export default function App() {
     if (!user) return
     try {
       console.log("🔄 Logging out user:", user.email)
-      await fetch(`${API}/users/${user._id}/status`, {
+      await fetch(`${apiBaseUrl}/users/${user._id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_logged_in: false }),
