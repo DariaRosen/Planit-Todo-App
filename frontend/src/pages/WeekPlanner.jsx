@@ -280,7 +280,6 @@ export function WeekPlanner() {
                                             const state = taskState[day.fullDate]?.[taskId] || t.status || "pending"
                                             const rawFrequency = (t.frequency || t.task_frequency || t.category || "").toString().toLowerCase()
                                             const frequency = rawFrequency || "daily"
-                                            const frequencyLabel = frequency.replace("_", " ")
                                             return (
                                                 <li
                                                     key={t.uniqueId || `${day.fullDate}-${taskId}`}
@@ -289,7 +288,6 @@ export function WeekPlanner() {
                                                     <div className="task-left">
                                                         <TaskIcon title={t.title} />
                                                         <span className="task-text">{t.title}</span>
-                                                        <span className="task-frequency-tag">{frequencyLabel}</span>
                                                     </div>
                                                     <div className="task-actions">
                                                         {state === "approved" ? (

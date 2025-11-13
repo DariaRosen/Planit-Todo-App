@@ -15,9 +15,6 @@ $day-accent-colors: (
   7: mix($color-teal, $color-sky, 55%)
 );
 
-$action-approve-color: mix($color-teal, $color-sky, 60%);
-$action-remove-color: mix($color-sand, $color-sky, 45%);
-
 .week-planner-container {
   display: flex;
   flex-direction: column;
@@ -142,12 +139,6 @@ $action-remove-color: mix($color-sand, $color-sky, 45%);
         &:hover {
           background: soft-tone($color-teal, 94%);
         }
-
-        .task-frequency-tag {
-          background-color: mix($color-teal, #ffffff, 75%);
-          border-color: mix($color-teal, $color-navy, 70%);
-          color: mix($color-navy, $color-teal, 30%);
-        }
       }
 
       &.frequency-weekly {
@@ -157,12 +148,6 @@ $action-remove-color: mix($color-sand, $color-sky, 45%);
         &:hover {
           background: soft-tone($color-sand, 94%);
         }
-
-        .task-frequency-tag {
-          background-color: mix($color-sand, #ffffff, 75%);
-          border-color: mix($color-sand, $color-navy, 70%);
-          color: mix($color-navy, $color-sand, 30%);
-        }
       }
 
       &.frequency-as_needed {
@@ -171,12 +156,6 @@ $action-remove-color: mix($color-sand, $color-sky, 45%);
 
         &:hover {
           background: soft-tone($color-sky, 94%);
-        }
-
-        .task-frequency-tag {
-          background-color: mix($color-sky, #ffffff, 75%);
-          border-color: mix($color-sky, $color-navy, 70%);
-          color: mix($color-navy, $color-sky, 30%);
         }
       }
 
@@ -280,34 +259,16 @@ $action-remove-color: mix($color-sand, $color-sky, 45%);
         &.frequency-daily {
           background: soft-tone($color-teal, 90%);
           border-color: mix(#ffffff, $color-teal, 68%);
-
-          .task-frequency-tag {
-            background-color: mix($color-teal, #ffffff, 75%);
-            border-color: mix($color-teal, $color-navy, 70%);
-            color: mix($color-navy, $color-teal, 30%);
-          }
         }
 
         &.frequency-weekly {
           background: soft-tone($color-sand, 90%);
           border-color: mix(#ffffff, $color-sand, 68%);
-
-          .task-frequency-tag {
-            background-color: mix($color-sand, #ffffff, 75%);
-            border-color: mix($color-sand, $color-navy, 70%);
-            color: mix($color-navy, $color-sand, 30%);
-          }
         }
 
         &.frequency-as_needed {
           background: soft-tone($color-sky, 90%);
           border-color: mix(#ffffff, $color-sky, 68%);
-
-          .task-frequency-tag {
-            background-color: mix($color-sky, #ffffff, 75%);
-            border-color: mix($color-sky, $color-navy, 70%);
-            color: mix($color-navy, $color-sky, 30%);
-          }
         }
 
         &.approved {
@@ -401,22 +362,6 @@ $action-remove-color: mix($color-sand, $color-sky, 45%);
   .task-text {
     flex: 1;
     font-size: 0.9rem;
-  }
-
-  .task-frequency-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.15rem 0.65rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    letter-spacing: 0.35px;
-    text-transform: uppercase;
-    font-weight: 600;
-    white-space: nowrap;
-    border: 1px solid mix($color-sand, $color-navy, 70%);
-    background-color: mix($color-sand, #ffffff, 70%);
-    color: mix($color-navy, $color-sand, 35%);
   }
 }
 
