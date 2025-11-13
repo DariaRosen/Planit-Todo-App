@@ -1,9 +1,70 @@
+@use "sass:color";
+
 $font-family: "Inter", sans-serif;
 $bg: #f5f7fb;
 $border-radius: 10px;
 
-$color-daily: #c8e6ff;
-$color-weekly: #ffd8b5;
-$color-as-needed: #fbd6e3;
-$color-header: #94d3af;
-$color-button: #33ba7b;
+$color-navy: #0a1f2f;
+$color-teal: #00a2a4;
+$color-seafoam: #44d6d3;
+$color-sky: #3ac1f2;
+$color-sand: #f2bf73;
+$color-amber: #f8d49f;
+$color-blue: #1d7ec9;
+$color-glacier: #9ed7f3;
+$color-ice: #e7f7fb;
+$color-button-gradient: linear-gradient(135deg, $color-sky, $color-sand, $color-teal);
+
+$color-daily: #bff1eb;
+$color-weekly: #f8dfb3;
+$color-as-needed: #bce6fb;
+$color-header: linear-gradient(120deg, $color-sky, $color-sand, $color-teal);
+$color-button: $color-teal;
+
+@function button-base-color($color-input) {
+  @if type-of($color-input) == "list" {
+    @return nth($color-input, 1);
+  }
+
+  @return $color-input;
+}
+
+@mixin gradient-button(
+  $color-input: $color-teal,
+  $padding-y: 0.55rem,
+  $padding-x: 1.1rem,
+  $radius: 999px,
+  $shadow-color: null
+) {
+  $base-color: button-base-color($color-input);
+  $shadow-base: if($shadow-color == null, $base-color, $shadow-color);
+  $hover-color: color.adjust($base-color, $lightness: -6%);
+  $text-color: if(lightness($base-color) > 65%, $color-navy, #ffffff);
+  $border-color: color.mix($base-color, $color-navy, 80%);
+  $shadow-rgba: rgba($shadow-base, 0.24);
+  $shadow-hover-rgba: rgba($shadow-base, 0.32);
+
+  --btn-hover-bg: #{$hover-color};
+  --btn-hover-shadow: #{$shadow-hover-rgba};
+
+  background-color: $base-color;
+  color: $text-color;
+  padding: $padding-y $padding-x;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 20px $shadow-rgba;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+@mixin gradient-button-hover($unused: null) {
+  transform: translateY(-2px);
+  background-color: var(--btn-hover-bg);
+  box-shadow: 0 16px 28px var(--btn-hover-shadow);
+}

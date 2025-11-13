@@ -1,11 +1,32 @@
 .app-header {
-  background: $color-header;
+  background: none;
   color: #fff;
-  padding: 0.8rem 1.5rem;
+  padding: 1rem 1.8rem;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 18px 28px rgba(12, 74, 110, 0.18);
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("/beach-header.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: scale(1.02);
+    z-index: -2;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(0, 31, 47, 0.68), rgba(36, 191, 249, 0.35), rgba(0, 191, 166, 0.55));
+    z-index: -1;
+  }
 
   .header-container {
     display: flex;
@@ -21,18 +42,18 @@
   }
 
   .logo {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     display: flex;
     align-items: center;
 
     img {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       vertical-align: middle;
-      margin-right: 0.5rem;
-      animation: spin 6s linear infinite; // ⬅️ add this line
+      margin-right: 0.65rem;
+      animation: spin 6s linear infinite;
     }
   }
 
@@ -48,19 +69,21 @@
 
   .nav-links {
     display: flex;
-    gap: 1.2rem;
+    gap: 1.4rem;
     align-items: center;
 
     .nav-item {
       color: white;
       text-decoration: none;
       font-weight: 500;
-      transition: opacity 0.2s ease;
+      transition: transform 0.2s ease, opacity 0.2s ease;
       &:hover {
-        opacity: 0.8;
+        opacity: 0.86;
+        transform: translateY(-1px);
       }
       &.active {
         text-decoration: underline;
+        text-decoration-thickness: 2px;
       }
     }
   }
@@ -109,41 +132,34 @@
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2px solid #ccc;
+  border: 2px solid rgba(#ffffff, 0.6);
   object-fit: cover;
 }
 
 .greeting {
   font-weight: 500;
-  color: #333;
+  color: rgba(#ffffff, 0.9);
 }
 
 .logout-btn {
-  background: none;
-  border: none;
-  color: #888;
-  cursor: pointer;
+  @include gradient-button((#ff6b6b, $color-sand, $color-teal), 0.4rem, 0.9rem, 999px, #ff6b6b);
   font-size: 0.9rem;
-  transition: color 0.2s;
 }
 
 .logout-btn:hover {
-  color: #000;
+  @include gradient-button-hover(#ff6b6b);
 }
 
 .login-btn {
-  background: #3b82f6;
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background 0.2s;
+  @include gradient-button();
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
 .login-btn:hover {
-  background: #2563eb;
+  @include gradient-button-hover();
 }
