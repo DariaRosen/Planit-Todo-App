@@ -77,16 +77,16 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
       &.daily {
-        background: linear-gradient(135deg, mix($color-daily, #ffffff, 68%), mix($color-teal, #ffffff, 78%));
-        border: 1px solid mix($color-daily, $color-teal, 45%);
+        background: linear-gradient(135deg, mix($color-daily, #ffffff, 54%), mix($color-teal, #ffffff, 68%));
+        border: 1px solid mix($color-daily, $color-teal, 50%);
       }
       &.weekly {
-        background: linear-gradient(135deg, mix($color-weekly, #ffffff, 72%), mix($color-sand, #ffffff, 84%));
-        border: 1px solid mix($color-weekly, $color-sand, 40%);
+        background: linear-gradient(135deg, mix($color-weekly, #ffffff, 60%), mix($color-sand, #ffffff, 74%));
+        border: 1px solid mix($color-weekly, $color-sand, 45%);
       }
       &.as_needed {
-        background: linear-gradient(135deg, mix($color-as-needed, #ffffff, 70%), mix($color-sky, #ffffff, 82%));
-        border: 1px solid mix($color-as-needed, $color-sky, 42%);
+        background: linear-gradient(135deg, mix($color-as-needed, #ffffff, 58%), mix($color-sky, #ffffff, 74%));
+        border: 1px solid mix($color-as-needed, $color-sky, 48%);
       }
 
       .actions {
