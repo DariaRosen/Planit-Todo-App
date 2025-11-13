@@ -343,37 +343,6 @@ $day-accent-colors: (
   }
 }
 
-@each $index, $base-color in $day-accent-colors {
-  .week-planner .day-column:nth-child(7n + #{$index}) {
-    background: soft-tone($base-color, 88%);
-    border-color: mix(#ffffff, $base-color, 64%);
-    box-shadow: 0 18px 38px rgba($base-color, 0.18);
-
-    .day-title {
-      color: mix($color-navy, $base-color, 45%);
-    }
-
-    .day-date {
-      color: mix($color-navy, $base-color, 30%);
-    }
-
-    .task-item {
-      background: soft-tone($base-color, 94%);
-      border-color: mix(#ffffff, $base-color, 76%);
-
-      &:hover {
-        background: soft-tone($base-color, 97%);
-      }
-    }
-
-    .task-item.approved {
-      background: soft-tone($color-teal, 90%);
-      border-color: mix(#ffffff, $color-teal, 70%);
-      color: darken($color-teal, 30%);
-    }
-  }
-}
-
 /* -----------------------------
    TASK ITEM AND ICONS
 ----------------------------- */
