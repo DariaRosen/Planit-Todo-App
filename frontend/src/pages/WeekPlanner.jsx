@@ -109,13 +109,35 @@ export function WeekPlanner() {
         const loggedUser = JSON.parse(localStorage.getItem("loggedinUser"))
         if (!loggedUser?._id) return console.error("❌ No logged-in user found")
 
+        // Optimistically update UI
         setTaskState((prev) => ({
             ...prev,
             [day.fullDate]: { ...prev[day.fullDate], [taskId]: "removed" },
         }))
 
         try {
-        await fetch(`${apiBaseUrl}/daytasks/${taskId}`, { method: "DELETE" })
+            const res = await fetch(`${apiBaseUrl}/daytasks/${taskId}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: loggedUser._id }),
+            })
+            
+            const data = await res.json()
+            
+            if (!res.ok || !data.success) {
+                console.error("❌ Failed to remove task:", data.error || data.message)
+                // Revert optimistic update on error
+                setTaskState((prev) => {
+                    const newState = { ...prev }
+                    if (newState[day.fullDate]?.[taskId]) {
+                        delete newState[day.fullDate][taskId]
+                    }
+                    return newState
+                })
+                return
+            }
+
+            // Remove from local state on success
             setDays((prev) =>
                 prev.map((d) =>
                     d.fullDate === day.fullDate
@@ -123,8 +145,17 @@ export function WeekPlanner() {
                         : d
                 )
             )
+            console.log("✅ Task removed successfully:", data)
         } catch (err) {
             console.error("❌ Error removing task:", err)
+            // Revert optimistic update on error
+            setTaskState((prev) => {
+                const newState = { ...prev }
+                if (newState[day.fullDate]?.[taskId]) {
+                    delete newState[day.fullDate][taskId]
+                }
+                return newState
+            })
         }
     }
 
