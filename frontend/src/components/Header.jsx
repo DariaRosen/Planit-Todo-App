@@ -36,7 +36,7 @@ export function Header({ user, onLogout }) {
                                 alt={user.name}
                                 className="avatar"
                             />
-                            <span className="greeting">Hello, {user.name} 👋</span>
+                            <span className="greeting">Hello, {user.name}</span>
                             <button className="logout-btn" onClick={onLogout}>
                                 Logout
                             </button>
