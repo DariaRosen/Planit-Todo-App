@@ -1,4 +1,5 @@
 import express from "express"
+import mongoose from "mongoose"
 import { DayTask } from "../models/DayTask.js"
 import { Task } from "../models/Task.js"
 
@@ -35,18 +36,43 @@ router.post("/", async (req, res) => {
 
         const existingMap = new Map()
         for (const task of existingTasks) {
-            const key = `${task.day_date}-${task.task_id}`
+            // Convert task_id to string for consistent key comparison
+            const taskIdStr = task.task_id?.toString() || task.task_id
+            const key = `${task.day_date}-${taskIdStr}`
             existingMap.set(key, true)
         }
 
-        // 4️⃣ Insert missing ones
+        // 3.5️⃣ Fetch manually removed tasks to prevent re-adding
+        const removedMap = new Map()
+        try {
+            const RemovedTaskCollection = mongoose.connection.collection("removedtasks")
+            const removedTasks = await RemovedTaskCollection.find({
+                user_id: new mongoose.Types.ObjectId(user_id),
+                day_date: { $in: days },
+            }).toArray()
+            
+            for (const removed of removedTasks) {
+                // Convert task_id to string for consistent key comparison
+                const taskIdStr = removed.task_id?.toString() || removed.task_id
+                const key = `${removed.day_date}-${taskIdStr}`
+                removedMap.set(key, true)
+            }
+        } catch (removedErr) {
+            // Collection might not exist yet - that's okay
+            console.warn("⚠️ Could not check removed tasks:", removedErr.message)
+        }
+
+        // 4️⃣ Insert missing ones (but skip manually removed tasks)
         let insertedCount = 0
         const newEntries = []
 
         for (const day of days) {
             for (const task of dailyTasks) {
-                const key = `${day}-${task._id}`
-                if (!existingMap.has(key)) {
+                // Convert task._id to string for consistent key comparison
+                const taskIdStr = task._id?.toString() || task._id
+                const key = `${day}-${taskIdStr}`
+                // Skip if already exists OR if it was manually removed
+                if (!existingMap.has(key) && !removedMap.has(key)) {
                     newEntries.push({
                         user_id,
                         task_id: task._id,

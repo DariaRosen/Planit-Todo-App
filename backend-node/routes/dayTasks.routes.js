@@ -1,4 +1,5 @@
 import express from "express"
+import mongoose from "mongoose"
 import { DayTask } from "../models/DayTask.js"
 import { Task } from "../models/Task.js" // ✅ import Task to update its counter
 
@@ -116,6 +117,29 @@ router.delete("/:id", async (req, res) => {
                 success: false,
                 error: "Task not found or already deleted",
             })
+        }
+
+        // ✅ Store removed task info to prevent sync-daily from re-adding it
+        try {
+            const RemovedTaskCollection = mongoose.connection.collection("removedtasks")
+            // Check if this task was already marked as removed (avoid duplicates)
+            const existing = await RemovedTaskCollection.findOne({
+                user_id: deleted.user_id,
+                task_id: deleted.task_id,
+                day_date: deleted.day_date,
+            })
+            
+            if (!existing) {
+                await RemovedTaskCollection.insertOne({
+                    user_id: deleted.user_id,
+                    task_id: deleted.task_id,
+                    day_date: deleted.day_date,
+                    removed_at: new Date(),
+                })
+            }
+        } catch (removedErr) {
+            // Collection might not exist - that's okay, will be created on first insert
+            console.warn("⚠️ Could not track removed task:", removedErr.message)
         }
 
         res.json({
