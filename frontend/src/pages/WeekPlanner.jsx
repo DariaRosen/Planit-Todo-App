@@ -51,7 +51,7 @@ export function WeekPlanner() {
                     method: "PATCH",
                 })
 
-                // ✅ Add visually
+                // ✅ Add visually (use day task ID for unique key)
                 setDays((prev) =>
                     prev.map((day) =>
                         day.fullDate === targetDay
@@ -61,9 +61,9 @@ export function WeekPlanner() {
                                     ...day.tasks,
                                     {
                                         ...taskData,
-                                        id: data.id,
-                                        task_id: sourceTaskId,
-                                        uniqueId: `${sourceTaskId}-${Date.now()}`,
+                                        id: data.id, // Day task ID (unique per instance)
+                                        task_id: sourceTaskId, // Parent task ID
+                                        uniqueId: `${data.id}`, // Use day task ID as unique identifier
                                     },
                                 ],
                             }
@@ -297,7 +297,7 @@ export function WeekPlanner() {
                                             const frequency = rawFrequency || "daily"
                                             return (
                                                 <li
-                                                    key={t.uniqueId || `${day.fullDate}-${taskId}`}
+                                                    key={taskId} // Use day task ID as unique key (each instance has unique ID)
                                                     className={`task-item frequency-${frequency} ${state === "approved" ? "approved" : ""}`}
                                                 >
                                                     <div className="task-left">
