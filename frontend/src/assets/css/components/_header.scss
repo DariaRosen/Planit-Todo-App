@@ -29,15 +29,27 @@
   }
 
   .header-container {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     width: 100%;
     padding-inline: 1rem;
 
     @media (min-width: 768px) {
-      max-width: 1200px;
+      max-width: 1700px;
       margin: 0 auto;
+    }
+
+    .logo {
+      justify-self: start;
+    }
+
+    .nav-links {
+      justify-self: center;
+    }
+
+    .user-section {
+      justify-self: end;
     }
   }
 
