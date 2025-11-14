@@ -18,11 +18,45 @@ $task-accent-colors: (
   border: 1px solid rgba($color-sky, 0.25);
   box-sizing: border-box;
 
+  // Tablet
+  @media (max-width: 1024px) {
+    padding: 1.4rem 0.9rem;
+    border-radius: 20px;
+  }
+
+  // Mobile
+  @media (max-width: 768px) {
+    padding: 1.2rem 0.8rem;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem 0.6rem;
+    border-radius: 12px;
+  }
+
   .task-panel-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: $color-navy;
     margin-bottom: 1.2rem;
+
+    // Tablet
+    @media (max-width: 1024px) {
+      font-size: 1.15rem;
+      margin-bottom: 1rem;
+    }
+
+    // Mobile
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+      margin-bottom: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
   }
 
   .task-panel-header {
@@ -72,6 +106,32 @@ $task-accent-colors: (
     flex: 1 1 auto;
     text-align: left;
     white-space: nowrap;
+
+    // Tablet
+    @media (max-width: 1024px) {
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      min-width: 140px;
+      max-width: 200px;
+    }
+
+    // Mobile
+    @media (max-width: 768px) {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.9rem;
+      min-width: 120px;
+      max-width: 180px;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.5rem 0.8rem;
+      font-size: 0.85rem;
+      min-width: 100px;
+      max-width: 100%;
+      flex: 1 1 calc(50% - 0.4rem);
+      border-radius: 10px;
+    }
 
     &:hover {
       background: rgba(#ffffff, 0.92);

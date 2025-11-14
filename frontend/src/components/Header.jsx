@@ -11,7 +11,29 @@ export function Header({ user, onLogout }) {
     return (
         <header className="app-header">
             <div className="header-container">
-                <h1 className="logo"><img src="/256px-Planet.svg.png" alt="Planit" /> Planit</h1>
+                <div className="header-top">
+                    <h1 className="logo"><img src="/256px-Planet.svg.png" alt="Planit" /> Planit</h1>
+
+                    <div className="user-section">
+                        {user ? (
+                            <div className="user-info">
+                                <img
+                                    src={getAvatar(user.name, user.avatar_url)}
+                                    alt={user.name}
+                                    className="avatar"
+                                />
+                                <span className="greeting">Hello, {user.name}</span>
+                                <button className="logout-btn" onClick={onLogout}>
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <NavLink to="/user" className="login-btn">
+                                Login / Sign Up
+                            </NavLink>
+                        )}
+                    </div>
+                </div>
 
                 <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
                     <NavLink to="/" className="nav-item">
@@ -27,33 +49,6 @@ export function Header({ user, onLogout }) {
                         </NavLink>
                     )}
                 </nav>
-
-                <div className="user-section">
-                    {user ? (
-                        <div className="user-info">
-                            <img
-                                src={getAvatar(user.name, user.avatar_url)}
-                                alt={user.name}
-                                className="avatar"
-                            />
-                            <span className="greeting">Hello, {user.name}</span>
-                            <button className="logout-btn" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
-                    ) : (
-                        <NavLink to="/user" className="login-btn">
-                            Login / Sign Up
-                        </NavLink>
-                    )}
-                </div>
-
-                <button
-                    className="menu-toggle"
-                    onClick={() => setMenuOpen((prev) => !prev)}
-                >
-                    ☰
-                </button>
             </div>
         </header>
     );
