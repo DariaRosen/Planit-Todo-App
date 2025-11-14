@@ -209,11 +209,13 @@ $day-accent-colors: (
         button {
           background: none;
           border: none;
+          outline: none;
           padding: 0.12rem;
           font-size: 1.15rem;
           color: rgba($color-navy, 0.7);
           cursor: pointer;
           transition: color 0.2s ease, transform 0.2s ease;
+          box-shadow: none;
 
           svg {
             color: inherit;
@@ -222,8 +224,12 @@ $day-accent-colors: (
           }
 
           &:hover,
+          &:focus,
           &:focus-visible {
             transform: translateY(-1px);
+            outline: none;
+            border: none;
+            box-shadow: none;
           }
 
           &.approve-btn,
