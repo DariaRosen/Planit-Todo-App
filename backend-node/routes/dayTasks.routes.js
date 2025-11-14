@@ -4,7 +4,7 @@ import { Task } from "../models/Task.js" // ✅ import Task to update its counte
 
 const router = express.Router()
 
-// ✅ POST /api/daytasks (create day task if not already exists)
+// ✅ POST /api/daytasks (create new day task instance - allows multiple instances per day)
 router.post("/", async (req, res) => {
     try {
         const { user_id, task_id, day_date, title } = req.body
@@ -16,18 +16,7 @@ router.post("/", async (req, res) => {
             })
         }
 
-        // 🔍 Check if already exists
-        const exists = await DayTask.findOne({ user_id, task_id, day_date })
-        if (exists) {
-            return res.json({
-                success: true,
-                message: "Task already exists for this day",
-                duplicate: true,
-                id: exists._id,
-            })
-        }
-
-        // ✅ Create new day task
+        // ✅ Create new day task (allows multiple instances of the same task per day)
         const newTask = new DayTask({
             user_id,
             task_id,
@@ -48,6 +37,16 @@ router.post("/", async (req, res) => {
         })
     } catch (err) {
         console.error("❌ Error inserting day task:", err)
+        
+        // Check if it's a duplicate key error (unique index still exists)
+        if (err.code === 11000 || err.message?.includes("duplicate key")) {
+            return res.status(500).json({
+                success: false,
+                error: "Duplicate key error - unique index still exists in database. Please restart the server to drop the index.",
+                details: err.message,
+            })
+        }
+        
         res.status(500).json({ success: false, error: err.message })
     }
 })

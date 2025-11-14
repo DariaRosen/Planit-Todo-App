@@ -10,7 +10,7 @@ const dayTaskSchema = new mongoose.Schema({
     updated_at: { type: Date, default: Date.now },
 })
 
-// ✅ Prevent duplicates (unique combo)
-dayTaskSchema.index({ user_id: 1, task_id: 1, day_date: 1 }, { unique: true })
+// ✅ Allow multiple instances of the same task on the same day
+// Removed unique index to support multiple instances (e.g., doing laundry 2-3 times per day)
 
 export const DayTask = mongoose.model("DayTask", dayTaskSchema)
