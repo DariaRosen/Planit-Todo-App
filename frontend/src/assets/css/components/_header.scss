@@ -246,6 +246,19 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
+}
+
+.user-clickable {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
 
 .avatar {
@@ -272,6 +285,8 @@
   border-color: mix($color-sand, $color-teal, 55%);
   font-size: 0.9rem;
   outline: none;
+  animation: fadeIn 0.2s ease;
+  margin-left: 0.5rem;
 }
 
 .logout-btn:hover {
