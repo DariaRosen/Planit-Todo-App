@@ -357,7 +357,7 @@ export function WeekPlanner() {
                                 </ul>
                             ) : (
                                 <p className="no-tasks">
-                                    {day.isToday ? "🌞 Today — Drag tasks here" : "🕳 Drag and drop tasks here"}
+                                    {day.isToday ? "Today — Drag tasks here" : "Drag and drop tasks here"}
                                 </p>
                             )}
                         </DroppableDay>
