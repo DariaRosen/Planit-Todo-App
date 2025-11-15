@@ -72,6 +72,8 @@
     transition: all 0.2s ease;
     border-radius: 12px;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 
     &:hover {
       opacity: 0.9;
@@ -87,6 +89,9 @@
     border-radius: 12px;
     border: 2px solid mix($color-teal, $color-sky, 55%);
     box-shadow: 0 8px 20px rgba($color-teal, 0.2);
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 
   .avatar-upload-placeholder {
