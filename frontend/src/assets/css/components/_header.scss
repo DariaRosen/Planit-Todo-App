@@ -300,12 +300,31 @@
 }
 
 .login-btn {
-  @include gradient-button();
-  padding: 0.45rem 0.95rem;
-  border-radius: 999px;
+  @include gradient-button(
+    mix($color-sand, $color-sky, 40%),
+    0.45rem,
+    0.95rem,
+    999px,
+    mix($color-sand, $color-sky, 25%)
+  );
+  border-color: mix($color-sand, $color-teal, 55%);
+  color: #ffffff !important;
   font-weight: 600;
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    color: #ffffff !important;
+    border-color: mix($color-sand, $color-teal, 55%);
+    text-decoration: none;
+  }
 }
 
 .login-btn:hover {
   @include gradient-button-hover();
+  border-color: mix($color-sand, $color-teal, 55%);
+  color: #ffffff !important;
+  text-decoration: none;
 }
