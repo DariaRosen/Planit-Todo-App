@@ -5,8 +5,38 @@ import { buildApiUrl } from "../lib/api-config"
 export function UserPanel({ user, setUser }) {
     const apiBaseUrl = buildApiUrl()
     const [form, setForm] = useState({ name: "", avatar_url: "" })
+    const [avatarPreview, setAvatarPreview] = useState(null)
 
     const updateForm = (key, val) => setForm((prev) => ({ ...prev, [key]: val }))
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file")
+            return
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size must be less than 5MB")
+            return
+        }
+
+        // Convert to base64
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const base64String = reader.result
+            setForm((prev) => ({ ...prev, avatar_url: base64String }))
+            setAvatarPreview(base64String)
+        }
+        reader.onerror = () => {
+            alert("Failed to read image file")
+        }
+        reader.readAsDataURL(file)
+    }
 
     const handleUpdate = async (e) => {
         e.preventDefault()
@@ -32,6 +62,7 @@ export function UserPanel({ user, setUser }) {
 
                 // ✅ Clear inputs after successful update
                 setForm({ name: "", avatar_url: "" })
+                setAvatarPreview(null)
 
                 alert("✅ Profile updated successfully.")
             } else {
@@ -66,12 +97,42 @@ export function UserPanel({ user, setUser }) {
                     value={form.name}
                     onChange={(e) => updateForm("name", e.target.value)}
                 />
-                <input
-                    type="url"
-                    placeholder="New avatar URL"
-                    value={form.avatar_url}
-                    onChange={(e) => updateForm("avatar_url", e.target.value)}
-                />
+                
+                <div className="avatar-upload-container">
+                    <label htmlFor="avatar-upload" className="avatar-upload-label">
+                        {avatarPreview || user?.avatar_url ? (
+                            <img 
+                                src={avatarPreview || user.avatar_url} 
+                                alt="Avatar preview" 
+                                className="avatar-preview"
+                            />
+                        ) : (
+                            <div className="avatar-upload-placeholder">
+                                <span>📷</span>
+                                <span>Upload Avatar</span>
+                            </div>
+                        )}
+                    </label>
+                    <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        style={{ display: "none" }}
+                    />
+                    {avatarPreview && (
+                        <button
+                            type="button"
+                            className="avatar-remove-btn"
+                            onClick={() => {
+                                setAvatarPreview(null)
+                                setForm((prev) => ({ ...prev, avatar_url: "" }))
+                            }}
+                        >
+                            Remove
+                        </button>
+                    )}
+                </div>
                 <button type="submit" className="edit-btn">
                     <Edit size={18} /> Update
                 </button>

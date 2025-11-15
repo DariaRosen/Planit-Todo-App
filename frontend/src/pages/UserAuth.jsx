@@ -12,6 +12,7 @@ export function UserAuth({ setUser }) {
         avatar_url: "",
         is_main_user: false,
     })
+    const [avatarPreview, setAvatarPreview] = useState(null)
 
     // 🔄 Load all users from MongoDB
     useEffect(() => {
@@ -31,6 +32,35 @@ export function UserAuth({ setUser }) {
 
     const updateForm = (key, val) => setForm((prev) => ({ ...prev, [key]: val }))
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file")
+            return
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size must be less than 5MB")
+            return
+        }
+
+        // Convert to base64
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const base64String = reader.result
+            setForm((prev) => ({ ...prev, avatar_url: base64String }))
+            setAvatarPreview(base64String)
+        }
+        reader.onerror = () => {
+            alert("Failed to read image file")
+        }
+        reader.readAsDataURL(file)
+    }
+
     // ✅ SIGN UP (POST /api/users)
     const handleSignup = async (e) => {
         e.preventDefault()
@@ -40,7 +70,7 @@ export function UserAuth({ setUser }) {
             email: form.email.trim(),
             is_main_user: form.is_main_user,
             avatar_url:
-                form.avatar_url.trim() ||
+                form.avatar_url ||
                 `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(
                     form.name || "Guest"
                 )}`,
@@ -61,6 +91,8 @@ export function UserAuth({ setUser }) {
                 }
                 localStorage.setItem("loggedinUser", JSON.stringify(newUser))
                 setUser(newUser)
+                setAvatarPreview(null)
+                setForm({ name: "", email: "", avatar_url: "", is_main_user: false })
                 alert(`✅ Welcome, ${newUser.name}!`)
             } else {
                 alert("❌ " + (data.error || "Signup failed"))
@@ -122,7 +154,11 @@ export function UserAuth({ setUser }) {
 
                     <p className="switch">
                         New here?{" "}
-                        <button type="button" onClick={() => setMode("signup")}>
+                        <button type="button" onClick={() => {
+                            setMode("signup")
+                            setAvatarPreview(null)
+                            setForm({ name: "", email: "", avatar_url: "", is_main_user: false })
+                        }}>
                             Sign Up
                         </button>
                     </p>
@@ -147,12 +183,41 @@ export function UserAuth({ setUser }) {
                         required
                     />
 
-                    <input
-                        type="url"
-                        placeholder="Avatar URL (optional)"
-                        value={form.avatar_url}
-                        onChange={(e) => updateForm("avatar_url", e.target.value)}
-                    />
+                    <div className="avatar-upload-container">
+                        <label htmlFor="avatar-upload-signup" className="avatar-upload-label">
+                            {avatarPreview ? (
+                                <img 
+                                    src={avatarPreview} 
+                                    alt="Avatar preview" 
+                                    className="avatar-preview"
+                                />
+                            ) : (
+                                <div className="avatar-upload-placeholder">
+                                    <span>📷</span>
+                                    <span>Upload Avatar (optional)</span>
+                                </div>
+                            )}
+                        </label>
+                        <input
+                            id="avatar-upload-signup"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            style={{ display: "none" }}
+                        />
+                        {avatarPreview && (
+                            <button
+                                type="button"
+                                className="avatar-remove-btn"
+                                onClick={() => {
+                                    setAvatarPreview(null)
+                                    setForm((prev) => ({ ...prev, avatar_url: "" }))
+                                }}
+                            >
+                                Remove
+                            </button>
+                        )}
+                    </div>
 
                     <label className="checkbox">
                         <input
@@ -171,7 +236,11 @@ export function UserAuth({ setUser }) {
 
                     <p className="switch">
                         Already have an account?{" "}
-                        <button type="button" onClick={() => setMode("login")}>
+                        <button type="button" onClick={() => {
+                            setMode("login")
+                            setAvatarPreview(null)
+                            setForm({ name: "", email: "", avatar_url: "", is_main_user: false })
+                        }}>
                             Log in
                         </button>
                     </p>
